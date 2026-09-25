@@ -36,17 +36,20 @@ import '@ionic/react/css/palettes/dark.system.css';
 /* Theme variables */
 import './theme/variables.css';
 import Tabs from './pages/Tabs';
+import { LibraryProvider } from './state/libraryContext';
 
 setupIonicReact();
 
 const App: React.FC = () => (
   <IonApp>
-    <IonReactRouter>
-      <IonRouterOutlet>
-        <Route path="/tabs/*" element={<Tabs />} />
-        <Route path="/" element={<Navigate to="/tabs/library" replace />} />
-      </IonRouterOutlet>
-    </IonReactRouter>
+    <LibraryProvider>
+      <IonReactRouter>
+        <IonRouterOutlet>
+          <Route path="/tabs/*" element={<Tabs />} />
+          <Route path="/" element={<Navigate to="/tabs/library" replace />} />
+        </IonRouterOutlet>
+      </IonReactRouter>
+    </LibraryProvider>
   </IonApp>
 );
 

@@ -40,7 +40,6 @@ export interface GameList {
   id: string;
   name: string;
   gameIds: string[];
-  createdAt: string;
 };
 
 export interface LibraryData {
