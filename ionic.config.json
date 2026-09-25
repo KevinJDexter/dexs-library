@@ -1,0 +1,7 @@
+{
+  "name": "Dex's Library",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}
