@@ -24,8 +24,8 @@ export interface Game {
   thumbnail?: string;
   minPlayers: number;
   maxPlayers: number;
-  bestPlayers: number[];
-  recommendedPlayers: number[];
+  bestPlayers?: number[];
+  recommendedPlayers?: number[];
   playTime?: number;
   complexity?: number; //same as weight on board game geek
   categories?: string[];
