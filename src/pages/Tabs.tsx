@@ -1,12 +1,12 @@
 import { IonIcon, IonLabel, IonRouterOutlet, IonTabBar, IonTabButton, IonTabs } from "@ionic/react";
 import { Navigate, Route } from "react-router";
-import PagePlaceholder from "./PagePlaceholder";
 import { cubeOutline, heartOutline, libraryOutline, listOutline } from "ionicons/icons";
-import GameCollectionPage from "../components/GameCollectionPage";
-import GameDetailPage from "../components/GameDetailPage";
-import SettingsPage from "../components/SettingsPage";
-import ListsPage from "../components/ListsPage";
-import ListDetailPage from "../components/ListDetailPage";
+import GameCollectionPage from "./GameCollectionPage";
+import GameDetailPage from "./GameDetailPage";
+import SettingsPage from "./SettingsPage";
+import ListsPage from "./ListsPage";
+import ListDetailPage from "./ListDetailPage";
+import DiceSandbox from "./DiceSandbox";
 
 export default function Tabs() {
   return (
@@ -23,7 +23,7 @@ export default function Tabs() {
         <Route path="lists/:listId" element={<ListDetailPage />} />
         <Route path="lists/:listId/games/:gameId" element={<GameDetailPage backHref="/tabs/lists" />} />
         
-        <Route path="pick" element={<PagePlaceholder title={"Pick a game"} />} />
+        <Route path="pick" element={<DiceSandbox />} />
 
         <Route index element={<Navigate to="/library" replace />} />
       </IonRouterOutlet>

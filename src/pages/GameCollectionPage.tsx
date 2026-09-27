@@ -3,9 +3,9 @@ import { useLibrary } from "../state/libraryContext";
 import { IonBadge, IonButton, IonButtons, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonList, IonPage, IonSearchbar, IonText, IonTitle, IonToolbar } from "@ionic/react";
 import { allCategories, applyFilters, countActiveFilters, DEFAULT_FILTERS, GameFilters, Scope } from "../logic/filters";
 import { add, funnelOutline, settingsOutline } from "ionicons/icons";
-import GameListItem from "./GameListItem";
-import AddGameModal from "./addGameModal";
-import FilterModal from "./FilterModal";
+import GameListItem from "../components/GameListItem";
+import AddGameModal from "../components/addGameModal";
+import FilterModal from "../components/FilterModal";
 
 interface GameCollectionPageProps {
   title: string;

@@ -1,7 +1,7 @@
 import { useParams } from "react-router";
 import { useLibrary } from "../state/libraryContext";
 import { IonBackButton, IonButtons, IonContent, IonHeader, IonList, IonPage, IonText, IonTitle, IonToolbar } from "@ionic/react";
-import GameListItem from "./GameListItem";
+import GameListItem from "../components/GameListItem";
 
 export default function ListDetailPage() {
   const { listId } = useParams<{ listId: string }>();
