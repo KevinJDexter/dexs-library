@@ -6,9 +6,9 @@ const STORAGE_KEY = "dexs-library";
 export const emptyLibrary: () => LibraryData = () => ({
   version: 1,
   people: [
-    { id: "dexter", name: "Dexter" },
-    { id: "joy", name: "Joy" },
-    { id: "doug", name: "Doug" }
+    { id: "user1", name: "Dexter" },
+    { id: "user2", name: "Joy" },
+    { id: "user3", name: "Doug" }
   ],
   lists: [],
   games: []

@@ -7,7 +7,7 @@ export interface Person {
 
 export type PlayStatus = "not-played" | "tried" | "played";
 
-export const PLAY_STATUSES: readonly string[] = ["not-played", "tried", "played"];
+export const PLAY_STATUSES: readonly PlayStatus[] = ["not-played", "tried", "played"];
 
 export const PLAY_STATUS_LABELS: Record<PlayStatus, string> = {
   "not-played": "Not Played",
@@ -27,6 +27,7 @@ export interface Game {
   bestPlayers?: number[];
   recommendedPlayers?: number[];
   playTime?: number;
+  setupTime?: number;
   complexity?: number; //same as weight on board game geek
   categories?: string[];
   mechanics?: string[];

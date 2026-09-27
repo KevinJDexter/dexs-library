@@ -5,7 +5,7 @@ import { IonButton, IonButtons, IonContent, IonHeader, IonItem, IonLabel, IonLis
 import { mockBggClient } from "../services/mockBggClient";
 import { Ownership } from "../domain/types";
 
-interface Props {
+interface AddGameModalProps {
   isOpen: boolean;
   onClose: () => void;
   /** 'wishlist' when opened from the Wishlist tab. */
@@ -15,7 +15,7 @@ interface Props {
 
 const WISHLIST = 'wishlist';
 
-export default function AddGameModal({ isOpen, onClose, defaultTarget, client = mockBggClient }: Props) {
+export default function AddGameModal({ isOpen, onClose, defaultTarget, client = mockBggClient }: AddGameModalProps) {
   const { data, actions } = useLibrary();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<BggSearchResult[]>([]);
@@ -101,7 +101,7 @@ export default function AddGameModal({ isOpen, onClose, defaultTarget, client = 
         <IonList>
           {results.map((r) => (
             <IonItem key={r.bggId} button disabled={alreadyThere(r.bggId)} onClick={() => addGame(r)}>
-              <IonLabel></IonLabel>
+              <IonLabel>{r.name}</IonLabel>
             </IonItem>
           ))}
         </IonList>
