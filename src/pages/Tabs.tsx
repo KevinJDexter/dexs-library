@@ -5,6 +5,8 @@ import { cubeOutline, heartOutline, libraryOutline, listOutline } from "ionicons
 import GameCollectionPage from "../components/GameCollectionPage";
 import GameDetailPage from "../components/GameDetailPage";
 import SettingsPage from "../components/SettingsPage";
+import ListsPage from "../components/ListsPage";
+import ListDetailPage from "../components/ListDetailPage";
 
 export default function Tabs() {
   return (
@@ -17,7 +19,10 @@ export default function Tabs() {
         <Route path="wishlist" element={<GameCollectionPage title="Wishlist" scope="wishlist" basePath="/tabs/wishlist" />} />
         <Route path="wishlist/game/:gameId" element={<GameDetailPage backHref="/tabs/wishlist" />} />
 
-        <Route path="lists" element={<PagePlaceholder title={"Lists"} />} />
+        <Route path="lists" element={<ListsPage />} />
+        <Route path="lists/:listId" element={<ListDetailPage />} />
+        <Route path="lists/:listId/games/:gameId" element={<GameDetailPage backHref="/tabs/lists" />} />
+        
         <Route path="pick" element={<PagePlaceholder title={"Pick a game"} />} />
 
         <Route index element={<Navigate to="/library" replace />} />
