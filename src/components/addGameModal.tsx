@@ -25,7 +25,7 @@ export default function AddGameModal({ isOpen, onClose, defaultTarget, client = 
 
   useEffect(() => {
     let cancelled = false;
-    if (!query.trim) {
+    if (!query.trim()) {
       setResults([]);
       setLoading(false);
       return;

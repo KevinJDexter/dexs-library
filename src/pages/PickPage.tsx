@@ -105,7 +105,7 @@ export default function PickPage() {
             </IonCardHeader>
             <IonCardContent>
               <p>{gameSummary(picked)}</p>
-              <IonButton fill="clear" routerLink={`/tabs/pick/game/${picked.id}`}>
+              <IonButton fill="clear" routerLink={`/tabs/pick/games/${picked.id}`}>
                 Details
               </IonButton>
               <IonButton fill="clear" onClick={() => share(picked)}>
