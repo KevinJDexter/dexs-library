@@ -6,7 +6,7 @@ import GameDetailPage from "./GameDetailPage";
 import SettingsPage from "./SettingsPage";
 import ListsPage from "./ListsPage";
 import ListDetailPage from "./ListDetailPage";
-import DiceSandbox from "./DiceSandbox";
+import PickPage from "./PickPage";
 
 export default function Tabs() {
   return (
@@ -23,7 +23,8 @@ export default function Tabs() {
         <Route path="lists/:listId" element={<ListDetailPage />} />
         <Route path="lists/:listId/games/:gameId" element={<GameDetailPage backHref="/tabs/lists" />} />
         
-        <Route path="pick" element={<DiceSandbox />} />
+        <Route path="pick" element={<PickPage />} />
+        <Route path="pick/games/:gameId" element={<GameDetailPage backHref="/tabs/pick" />} />
 
         <Route index element={<Navigate to="/library" replace />} />
       </IonRouterOutlet>
