@@ -9,7 +9,7 @@ export interface BggGameDetails extends BggSearchResult {
   maxPlayers: number;
   bestPlayers?: number[];
   recommendedPlayers?: number[];
-  playTime: number;
+  playTime?: number;
   complexity?: number;
   categories: string[];
   mechanics: string[];

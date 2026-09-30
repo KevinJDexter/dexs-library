@@ -10,6 +10,15 @@ export default defineConfig({
     react(),
     legacy()
   ],
+  server: {
+    proxy: {
+      '/bgg': {
+        target: 'https://boardgamegeek.com',
+        changeOrigin: true,
+        rewrite: (path: string) => path.replace(/^\/bgg/, '/xmlapi2')
+      }
+    }
+  },
   test: {
     globals: true,
     environment: 'jsdom',

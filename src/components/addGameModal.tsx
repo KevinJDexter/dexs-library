@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { BggClient, BggGameDetails, BggSearchResult } from "../services/bgg";
 import { useLibrary } from "../state/libraryContext";
 import { IonButton, IonButtons, IonContent, IonHeader, IonItem, IonLabel, IonList, IonModal, IonSearchbar, IonSegment, IonSegmentButton, IonSpinner, IonTitle, IonToolbar, useIonToast } from "@ionic/react";
-import { mockBggClient } from "../services/mockBggClient";
 import { Ownership } from "../domain/types";
+import { bggClient } from "../services/bggXmlClient";
 
 interface AddGameModalProps {
   isOpen: boolean;
@@ -15,7 +15,7 @@ interface AddGameModalProps {
 
 const WISHLIST = 'wishlist';
 
-export default function AddGameModal({ isOpen, onClose, defaultTarget, client = mockBggClient }: AddGameModalProps) {
+export default function AddGameModal({ isOpen, onClose, defaultTarget, client = bggClient }: AddGameModalProps) {
   const { data, actions } = useLibrary();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<BggSearchResult[]>([]);

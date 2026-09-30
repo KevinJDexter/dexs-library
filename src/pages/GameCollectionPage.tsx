@@ -25,6 +25,7 @@ export default function GameCollectionPage({ title, scope, basePath }: GameColle
   const activeCount = countActiveFilters(filters);
   const totalInScope = data.games.filter(game => scope === 'owned' ? game.ownership.kind === 'owned' : game.ownership.kind === 'wishlist').length;
   
+  console.log(import.meta.env.VITE_BGG_TOKEN)
   return (
     <IonPage>
       <IonHeader>
