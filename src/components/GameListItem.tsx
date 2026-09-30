@@ -22,20 +22,20 @@ export default function GameListItem({ game, href }: { game: Game, href: string 
         <div slot="start">
           <GameThumb name={game.name} src={game.thumbnail} />
         </div>
+        <IonLabel>
+          <h2>
+            {game.name}
+            {game.favorite && <IonIcon icon={heart} color="danger" style={{ marginLeft: 6, verticalAlign: 'middle' }} />}
+          </h2>
+          <p>{gameSummary(game)}</p>
+          {owner && <p>{owner}</p>}
+        </IonLabel>
+        <IonNote slot="end">
+          <IonBadge color={STATUS_COLOR[game.status]}>
+            {PLAY_STATUS_LABELS[game.status]}
+          </IonBadge>
+        </IonNote>
       </IonItem>
-      <IonLabel>
-        <h2>
-          {game.name}
-          {game.favorite && <IonIcon icon={heart} color="danger" style={{ marginLeft: 6, verticalAlign: 'middle' }} />}
-        </h2>
-        <p>{gameSummary(game)}</p>
-        {owner && <p>{owner}</p>}
-      </IonLabel>
-      <IonNote slot="end">
-        <IonBadge color={STATUS_COLOR[game.status]}>
-          {PLAY_STATUS_LABELS[game.status]}
-        </IonBadge>
-      </IonNote>
       <IonItemOptions slot="end">
         <IonItemOption color={"danger"} onClick={() => actions.updateGame(game.id, { favorite: !game.favorite })}>
           <IonIcon slot="icon-only" icon={game.favorite ? heart : heartOutline} />

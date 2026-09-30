@@ -1,3 +1,5 @@
+import './GameThumb.css';
+
 // Mock games have no images, so draw a colored tile with the game's initials.
 const hue = (name: string) => [...name].reduce((sum, ch) => sum + ch.charCodeAt(0), 0) % 360;
 
