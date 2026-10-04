@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BggClient, BggGameDetails, BggSearchResult } from "../services/bgg";
 import { useLibrary } from "../state/libraryContext";
-import { IonButton, IonButtons, IonContent, IonHeader, IonItem, IonLabel, IonList, IonModal, IonSearchbar, IonSegment, IonSegmentButton, IonSpinner, IonTitle, IonToolbar, useIonToast } from "@ionic/react";
+import { IonButton, IonButtons, IonContent, IonHeader, IonItem, IonLabel, IonList, IonModal, IonSearchbar, IonSpinner, IonText, IonTitle, IonToolbar, useIonToast } from "@ionic/react";
 import { Ownership } from "../domain/types";
 import { bggClient } from "../services/bggXmlClient";
 
@@ -15,13 +15,17 @@ interface AddGameModalProps {
 
 const WISHLIST = 'wishlist';
 
-export default function AddGameModal({ isOpen, onClose, defaultTarget, client = bggClient }: AddGameModalProps) {
+export default function AddGameModal({ isOpen, onClose, defaultTarget = WISHLIST, client = bggClient }: AddGameModalProps) {
   const { data, actions } = useLibrary();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<BggSearchResult[]>([]);
   const [loading, setLoading] = useState(false);
-  const [target, setTarget] = useState(defaultTarget ? data.people[0].id : WISHLIST);
-  const [presentToast] = useIonToast();
+  const [target, setTarget] = useState(defaultTarget);
+  const [presentToast, dismissToast] = useIonToast();
+
+  const personName = useMemo(() => (
+    target === WISHLIST ? 'Wishlist' : data.people.find(person => person.id === target)?.name
+  ), [data, target])
 
   useEffect(() => {
     let cancelled = false;
@@ -37,6 +41,10 @@ export default function AddGameModal({ isOpen, onClose, defaultTarget, client = 
       .finally(() => !cancelled && setLoading(false))
     return () => {cancelled = true};
   }, [query, client])
+
+  useEffect(() => {
+    setTarget(defaultTarget)
+  }, [defaultTarget])
 
   const alreadyThere = (bggId: number) => (
     data.games.some((game) => (
@@ -57,31 +65,34 @@ export default function AddGameModal({ isOpen, onClose, defaultTarget, client = 
       status: 'not-played',
       favorite: false,
     });
-    const addedTo = target === WISHLIST ? 'the wishlist' : `${data.people.find(person => person.id === target)?.name}'s games`
-    presentToast(`${game.name} added to ${addedTo}`);
+    const addedTo = target === WISHLIST ? 'the wishlist' : `${personName}'s games`
+    await dismissToast();
+    presentToast(`${game.name} added to ${addedTo}`, 1000);
+  }
+
+  async function removeGame(game: BggSearchResult) {
+    const gameId = data.games.find(g => g.bggId === game.bggId && (
+      target === WISHLIST
+        ? g.ownership.kind === WISHLIST
+        : g.ownership.kind === 'owned' && g.ownership.ownerId === target
+    ))?.id;
+    if (gameId) {
+      actions.removeGame(gameId)
+      const removedFrom = target === WISHLIST ? 'the wishlist' : `${personName}'s games`;
+      await dismissToast();
+      presentToast(`${game.name} removed from ${removedFrom}`, 1000);
+    }
   }
 
   return (
     <IonModal isOpen={isOpen} onDidDismiss={onClose}>
       <IonHeader>
         <IonToolbar>
+          <IonText slot="start" style={{ margin: "2px 16px 0" }}>{personName}</IonText>
           <IonTitle>Add a Game</IonTitle>
           <IonButtons slot="end">
             <IonButton onClick={onClose}>Close</IonButton>
           </IonButtons>
-        </IonToolbar>
-        <IonToolbar>
-          <IonSegment value={target} onIonChange={(e) => setTarget(String(e.detail.value))}>
-            {/* Need to allow for scrolling later */}
-            {data.people.map(person => (
-              <IonSegmentButton key={person.id} value={person.id}>
-                <IonLabel>{person.name}</IonLabel>
-              </IonSegmentButton>
-            ))}
-            <IonSegmentButton value={WISHLIST}>
-              <IonLabel>Wishlist</IonLabel>
-            </IonSegmentButton>
-          </IonSegment>
         </IonToolbar>
         <IonToolbar>
           <IonSearchbar
@@ -100,12 +111,22 @@ export default function AddGameModal({ isOpen, onClose, defaultTarget, client = 
         )}
         <IonList>
           {results.map((r) => (
-            <IonItem key={r.bggId} button disabled={alreadyThere(r.bggId)} onClick={() => addGame(r)}>
-              <IonLabel>{r.name}</IonLabel>
+            <IonItem key={r.bggId}>
+              <IonLabel style={{ opacity: alreadyThere(r.bggId) ? 0.3 : 1}}>{r.name}</IonLabel>
+              {!alreadyThere(r.bggId) ? (
+                <IonButton size="small" slot="end" onClick={() => addGame(r)}>
+                  Add
+                </IonButton>
+              ) : (
+                <IonButton size="small" slot="end" onClick={() => removeGame(r)}>
+                  Remove
+                </IonButton>
+              )}
             </IonItem>
           ))}
         </IonList>
         {!loading && query && results.length === 0 && <p>No match found</p>}
+        {!loading && !query && <p>Waiting for query</p>}
       </IonContent>
     </IonModal>
   )

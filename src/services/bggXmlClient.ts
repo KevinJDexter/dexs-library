@@ -45,14 +45,14 @@ export function createXmlBggClient(token: string): BggClient {
     async search(query): Promise<BggSearchResult[]> {
       if (!query.trim) return [];
       const doc = await getXml('search', { query, type: 'boardgame' }, token);
-      return [...doc.querySelectorAll('item')].slice(0, 25).map((item => ({
+      return [...doc.querySelectorAll('item')].sort((a, b) => Number(a.getAttribute('id')) - Number(b.getAttribute('id'))).slice(0, 25).map((item => ({
         bggId: Number(item.getAttribute('id')),
         name: attr(item.querySelector('name')) ?? 'Unknown'
       })));
     },
 
     async getDetails(bggId): Promise<BggGameDetails> {
-      const doc = await getXml('thing', { id: bggId.toString(), stats: 'boardgame' }, token);
+      const doc = await getXml('thing', { id: bggId.toString(), stats: '1' }, token);
       const item = doc.querySelector('item');
       if (!item) throw new Error(`No game with BGG id ${bggId}`);
 

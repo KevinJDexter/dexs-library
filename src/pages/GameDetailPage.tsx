@@ -2,7 +2,7 @@ import { useParams } from "react-router";
 import { useLibrary } from "../state/libraryContext";
 import { IonBackButton, IonButton, IonButtons, IonCheckbox, IonChip, IonContent, IonHeader, IonInput, IonItem, IonLabel, IonList, IonListHeader, IonPage, IonSegment, IonSegmentButton, IonSelect, IonSelectOption, IonTitle, IonToggle, IonToolbar, useIonAlert, useIonRouter } from "@ionic/react";
 import { Ownership, PLAY_STATUS_LABELS, PLAY_STATUSES, PlayStatus } from "../domain/types";
-import GameThumb from "../components/gameThumb";
+import GameThumb from "../components/GameThumb";
 import { gameSummary, playerRange } from "../logic/format";
 
 export default function GameDetailPage({backHref}: {backHref: string}) {

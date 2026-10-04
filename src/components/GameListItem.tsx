@@ -1,7 +1,7 @@
 import { IonBadge, IonIcon, IonItem, IonItemOption, IonItemOptions, IonItemSliding, IonLabel, IonNote } from "@ionic/react";
 import { Game, PLAY_STATUS_LABELS } from "../domain/types";
 import { useLibrary } from "../state/libraryContext";
-import GameThumb from "./gameThumb";
+import GameThumb from "./GameThumb";
 import { heart, heartOutline } from "ionicons/icons";
 import { gameSummary } from "../logic/format";
 
