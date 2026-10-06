@@ -29,7 +29,7 @@ export default function ListDetailPage() {
         )}
         <IonList>
           {games.map(game => (
-            <GameListItem key={game.id} game={game} href={`/tabs/lists/${listId}/games/${game.id}`} />
+            <GameListItem key={game.id} game={game} showOwner={true} href={`/tabs/lists/${listId}/games/${game.id}`} />
           ))}
         </IonList>
       </IonContent>

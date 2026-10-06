@@ -30,7 +30,7 @@ function parsePlayerPoll(item: Element) {
   const votes = results.map(result => {
     const count = (value: string) => Number(attr(result.querySelector(`result[value="${value}"]`), 'numvotes') ?? 0)
     return {
-      players: Number(result.getAttribute('numPlayers')),
+      players: Number(result.getAttribute('numplayers')),
       best: count('Best'),
       recommended: count('Recommended'),
       notRecommended: count('Not Recommended'),

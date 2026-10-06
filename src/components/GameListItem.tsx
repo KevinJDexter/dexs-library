@@ -11,7 +11,7 @@ const STATUS_COLOR = {
   'played': 'success'
 }
 
-export default function GameListItem({ game, href }: { game: Game, href: string }) {
+export default function GameListItem({ game, href, showOwner = false}: { game: Game, href: string, showOwner: boolean }) {
   const { data, actions } = useLibrary();
   const ownerId = game.ownership.kind === 'owned' ? game.ownership.ownerId : undefined;
   const owner = data.people.find(person => person.id === ownerId)?.name;
@@ -28,7 +28,7 @@ export default function GameListItem({ game, href }: { game: Game, href: string 
             {game.favorite && <IonIcon icon={heart} color="danger" style={{ marginLeft: 6, verticalAlign: 'middle' }} />}
           </h2>
           <p>{gameSummary(game)}</p>
-          {owner && <p>{owner}</p>}
+          {showOwner && owner && <p>{owner}</p>}
         </IonLabel>
         <IonNote slot="end">
           <IonBadge color={STATUS_COLOR[game.status]}>
