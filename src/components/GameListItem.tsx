@@ -11,7 +11,7 @@ const STATUS_COLOR = {
   'played': 'success'
 }
 
-export default function GameListItem({ game, href, showOwner = false}: { game: Game, href: string, showOwner: boolean }) {
+export default function GameListItem({ game, href, showOwner = false}: { game: Game, href: string, showOwner?: boolean }) {
   const { data, actions } = useLibrary();
   const ownerId = game.ownership.kind === 'owned' ? game.ownership.ownerId : undefined;
   const owner = data.people.find(person => person.id === ownerId)?.name;
