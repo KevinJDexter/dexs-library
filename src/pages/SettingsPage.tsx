@@ -1,8 +1,36 @@
-import { IonBackButton, IonButtons, IonContent, IonHeader, IonInput, IonItem, IonLabel, IonList, IonListHeader, IonPage, IonTitle, IonToolbar } from "@ionic/react";
+import { IonBackButton, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonListHeader, IonPage, IonTitle, IonToolbar, useIonAlert } from "@ionic/react";
 import { useLibrary } from "../state/libraryContext";
+import { useState } from "react";
+import { Person } from "../domain/types";
+import { trashOutline } from "ionicons/icons";
 
 export default function SettingsPage() {
   const { data, actions } = useLibrary();
+  const [ newName, setNewName ] = useState('');
+  const [ presentAlert ] = useIonAlert();
+  
+  function addPerson() {
+    const name = newName.trim();
+    if (!name) return;
+    actions.addPerson(name);
+    setNewName('');
+  }
+
+  function confirmRemove(person: Person) {
+    const gameCount = data.games.filter(game => game.ownership.kind === 'owned' && game.ownership.ownerId === person.id).length;
+    const gamesNote = gameCount > 0
+      ? `${person.name} has ${gameCount} ${gameCount === 1 ? 'game' : 'games'} that will be deleted. `
+      : '';
+
+    presentAlert({
+      header: `Remove ${person.name}?`,
+      message: `${gamesNote}This action can't be undone.`,
+      buttons: [
+        { text: 'Cancel', role: 'cancel'},
+        { text: 'Remove', role: 'destructive', handler: () => actions.removePerson(person.id)}
+      ]
+    })
+  }
 
   return (
     <IonPage>
@@ -28,8 +56,29 @@ export default function SettingsPage() {
                 value={person.name}
                 onIonChange={(e) => e.detail.value?.trim() && actions.renamePerson(person.id, e.detail.value.trim())}
               />
+              <IonButton
+                slot="end"
+                fill="clear"
+                color="danger"
+                disabled={data.people.length <= 1}
+                onClick={() => confirmRemove(person)}
+              >
+                <IonIcon slot="icon-only" icon={trashOutline} />
+              </IonButton>
             </IonItem>
           ))}
+          <IonItem>
+            <IonInput
+              label="Add person"
+              placeholder="Name"
+              value={newName}
+              onIonInput={(e) => setNewName(e.detail.value ?? '')}
+              onKeyDown={(e) => e.key === 'Enter' && addPerson()}
+            />
+            <IonButton slot="end" disabled={!newName.trim()} onClick={addPerson}>
+              Add
+            </IonButton>
+          </IonItem>
         </IonList>
       </IonContent>
     </IonPage>

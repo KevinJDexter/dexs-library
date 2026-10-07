@@ -1,5 +1,5 @@
 import { createContext, ReactNode, useContext, useEffect, useMemo, useReducer, useRef, useState } from "react";
-import { Game } from "../domain/types";
+import { Game, Person, PersonId } from "../domain/types";
 import { emptyLibrary, loadLibrary, saveLibrary } from "../storage/LibraryRepository";
 import { libraryReducer } from "./libraryReducer";
 import { newId } from "../domain/id";
@@ -45,8 +45,16 @@ function useLibraryStore() {
       removeGame: (id: string) => (
         dispatch({ type: 'removeGame', id })
       ),
-      renamePerson: (id: string, name: string) => (
+      addPerson: ( name: string ) => {
+        const person: Person = { id: newId(), name };
+        dispatch({ type: 'addPerson', person });
+        return person
+      },
+      renamePerson: (id: PersonId, name: string) => (
         dispatch({ type: 'renamePerson', id, name })
+      ),
+      removePerson: (id: PersonId) => (
+        dispatch({ type: 'removePerson', id})
       ),
       createList: (name: string) => {
         const list = { id: newId(), name, gameIds: []}

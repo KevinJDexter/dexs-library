@@ -18,7 +18,9 @@ export default function GameCollectionPage({ title, scope, basePath }: GameColle
   const [ filters, setFilters ] = useState<GameFilters>({ ...DEFAULT_FILTERS, scope })
   const [ filterModalOpen, setFilterModalOpen ] = useState(false);
   const [ addGameModalOpen, setAddGameModalOpen ] = useState(false);
-  const [ libraryOwnerId, setLibraryOwnerId ] = useState(scope === 'wishlist' ? 'wishlist' : data.people[0].id)
+  const [ chosenOwnerId, setChosenOwnerId ] = useState(scope === 'wishlist' ? 'wishlist' : data.people[0].id)
+
+  const libraryOwnerId = scope === 'wishlist' || data.people.some(person => person.id === chosenOwnerId) ? chosenOwnerId : data.people[0].id;
 
   const ownedGames = useMemo(() => (
     data.games.filter(game => scope === 'owned' ? game.ownership.kind === 'owned' && game.ownership.ownerId === libraryOwnerId : game.ownership.kind === 'wishlist')
@@ -34,7 +36,7 @@ export default function GameCollectionPage({ title, scope, basePath }: GameColle
       <IonHeader>
         <IonToolbar style={{ display: 'flex' }}>
           { scope === 'owned' && (
-            <IonSelect slot="start" style={{ margin: "2px 16px 0" }} value={libraryOwnerId} onIonChange={(e) => setLibraryOwnerId(e.detail.value)}>
+            <IonSelect slot="start" style={{ margin: "2px 16px 0" }} value={libraryOwnerId} onIonChange={(e) => setChosenOwnerId(e.detail.value)}>
               {data.people.map(person => (
                 <IonSelectOption key={person.id} value={person.id}>
                   {person.name}

@@ -18,6 +18,7 @@ const WISHLIST = 'wishlist';
 export default function AddGameModal({ isOpen, onClose, defaultTarget = WISHLIST, client = bggClient }: AddGameModalProps) {
   const { data, actions } = useLibrary();
   const [query, setQuery] = useState('');
+  const [searchText, setSearchText] = useState('');
   const [results, setResults] = useState<BggSearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [target, setTarget] = useState(defaultTarget);
@@ -26,6 +27,11 @@ export default function AddGameModal({ isOpen, onClose, defaultTarget = WISHLIST
   const personName = useMemo(() => (
     target === WISHLIST ? 'Wishlist' : data.people.find(person => person.id === target)?.name
   ), [data, target])
+
+  useEffect(() => {
+    const timer = setTimeout(() => setQuery(searchText), 250);
+    return () => clearTimeout(timer);
+  }, [searchText])
 
   useEffect(() => {
     let cancelled = false;
@@ -96,37 +102,37 @@ export default function AddGameModal({ isOpen, onClose, defaultTarget = WISHLIST
         </IonToolbar>
         <IonToolbar>
           <IonSearchbar
-            debounce={250}
             placeholder="Search for a Game..."
-            value={query}
-            onIonInput={(e) => setQuery(e.detail.value ?? '')}
+            value={searchText}
+            onIonInput={(e) => setSearchText(e.detail.value ?? '')}
           />
         </IonToolbar>
       </IonHeader>
       <IonContent>
-        {loading && (
+        {loading ? (
           <div className='ion-text-center ion-padding'>
             <IonSpinner />
           </div>
+        ) : (
+          <IonList>
+            {results.map((r) => (
+              <IonItem key={r.bggId}>
+                <IonLabel style={{ opacity: alreadyThere(r.bggId) ? 0.3 : 1}}>{r.name}</IonLabel>
+                {!alreadyThere(r.bggId) ? (
+                  <IonButton size="small" slot="end" onClick={() => addGame(r)}>
+                    Add
+                  </IonButton>
+                ) : (
+                  <IonButton size="small" slot="end" onClick={() => removeGame(r)}>
+                    Remove
+                  </IonButton>
+                )}
+              </IonItem>
+            ))}
+          </IonList>
         )}
-        <IonList>
-          {results.map((r) => (
-            <IonItem key={r.bggId}>
-              <IonLabel style={{ opacity: alreadyThere(r.bggId) ? 0.3 : 1}}>{r.name}</IonLabel>
-              {!alreadyThere(r.bggId) ? (
-                <IonButton size="small" slot="end" onClick={() => addGame(r)}>
-                  Add
-                </IonButton>
-              ) : (
-                <IonButton size="small" slot="end" onClick={() => removeGame(r)}>
-                  Remove
-                </IonButton>
-              )}
-            </IonItem>
-          ))}
-        </IonList>
-        {!loading && query && results.length === 0 && <p>No match found</p>}
-        {!loading && !query && <p>Waiting for query</p>}
+        {!loading && query && query === searchText && results.length === 0 && <p>No match found</p>}
+        {!searchText && <p>Waiting for query</p>}
       </IonContent>
     </IonModal>
   )

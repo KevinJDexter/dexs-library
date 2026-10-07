@@ -1,11 +1,13 @@
-import { Game, GameList, LibraryData, PersonId } from "../domain/types";
+import { Game, GameList, LibraryData, Person, PersonId } from "../domain/types";
 
 export type LibraryAction =
   | { type: "hydrate"; data: LibraryData}
   | { type: "addGame"; game: Game}
   | { type: "updateGame"; id: string; patch: Partial<Omit<Game, "id">> }
   | { type: "removeGame"; id: string}
+  | { type: "addPerson"; person: Person }
   | { type: "renamePerson"; id: PersonId, name: string }
+  | { type: "removePerson"; id: PersonId }
   | { type: "createList"; list: GameList}
   | { type: "renameList"; id: string, name: string}
   | { type: "deleteList"; id: string}
@@ -28,11 +30,29 @@ export function libraryReducer (state: LibraryData, action: LibraryAction): Libr
         games: state.games.filter(game => game.id !== action.id),
         lists: state.lists.map(list => ({...list, gameIds: list.gameIds.filter(gameId => gameId !== action.id)}))
       };
+    case "addPerson":
+      return {
+        ...state,
+        people: [...state.people, action.person]
+      }
     case "renamePerson":
       return {
         ...state,
         people: state.people.map(person => person.id === action.id ? { ...person, name: action.name } : person )
       };
+    case "removePerson":
+      if (state.people.length <= 1) return state;
+      else {
+        const ownedGameIds = state.games.filter(game => game.ownership.kind === 'owned' && game.ownership.ownerId === action.id).map(game => game.id);
+        const remainingGames = state.games.filter(game => game.ownership.kind === 'wishlist' || game.ownership.ownerId !== action.id);
+
+        return {
+          ...state,
+          people: state.people.filter(person => person.id !== action.id),
+          games: remainingGames,
+          lists: state.lists.map(list => ({ ...list, gameIds: list.gameIds.filter(id => !ownedGameIds.includes(id))}))
+        }
+      }
     case "createList":
       return {
         ...state,
