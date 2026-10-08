@@ -104,7 +104,6 @@ export default function GameCollectionPage({ title, scope, basePath }: GameColle
         people={data.people}
         lists={data.lists}
         categories={allCategories(data.games)}
-        showOwner={scope === 'owned'}
       />
     </IonPage>
   )

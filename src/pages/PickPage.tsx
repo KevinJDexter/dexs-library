@@ -15,7 +15,7 @@ const DiceRoller = lazy(() => import('../components/DiceRoller'));
 
 export default function PickPage() {
   const { data } = useLibrary();
-  const [filters, setFilters] = useState<GameFilters>(DEFAULT_FILTERS);
+  const [filters, setFilters] = useState<GameFilters>({...DEFAULT_FILTERS, scope: 'owned'});
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [picked, setPicked] = useState<Game | null>(null);
   const [rolling, setRolling] = useState(false);
@@ -69,7 +69,8 @@ export default function PickPage() {
                 ownerId: partner.id,
                 statuses: ['not-played'],
                 playerCount: 2,
-                playerFit: 'recommended'
+                playerFit: 'recommended',
+                scope: 'owned',
               })
             }
           >

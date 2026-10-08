@@ -59,7 +59,7 @@ export function applyFilters(games: readonly Game[], filters: GameFilters, lists
     if (filters.statuses.length && !filters.statuses.includes(game.status)) return false;
     if (filters.favoritesOnly && !game.favorite) return false;
     if (filters.playerCount && !fitsPlayerCount(game, filters.playerCount, filters.playerFit)) return false;
-    if (!complexityIsDefault) {
+    if (!complexityIsDefault(filters)) {
       if (!game.complexity) return false;
       if (filters.complexity.lower > game.complexity || filters.complexity.upper < game.complexity) return false;
     }
