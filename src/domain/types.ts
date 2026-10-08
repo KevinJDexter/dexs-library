@@ -17,7 +17,25 @@ export const PLAY_STATUS_LABELS: Record<PlayStatus, string> = {
 
 export type Ownership = { kind: "owned", ownerId: PersonId } | { kind: "wishlist" };
 
-export interface Game {
+export interface BggRef {
+  bggId: number;
+  name: string;
+}
+
+export interface BggExtras {
+  yearPublished?: number;
+  isExpansion?: boolean;
+  designers?: string[];
+  publishers?: string[];
+  families?: string[];
+  expansionCatalog?: BggRef[];
+  expansionOf?: BggRef[];
+  integrations?: BggRef[];
+  reimplements?: BggRef[];
+  reimplementedBy?: BggRef[];
+}
+
+export interface Game extends BggExtras {
   id: string;
   bggId?: number;
   name: string;

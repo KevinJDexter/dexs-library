@@ -1,3 +1,5 @@
+import { BggExtras } from "../domain/types";
+
 export interface BggSearchResult {
   bggId: number;
   name: string;
@@ -8,7 +10,7 @@ export interface BggSearchOptions {
   exact?: boolean;
 }
 
-export interface BggGameDetails extends BggSearchResult {
+export interface BggGameDetails extends BggSearchResult, BggExtras {
   thumbnail?: string;
   minPlayers: number;
   maxPlayers: number;

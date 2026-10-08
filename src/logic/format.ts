@@ -21,3 +21,8 @@ export function gameSummary(game: Game): string {
   if (game.complexity !== undefined) summaryParts.push(`complexity: ${gameComplexityToLabel(game.complexity)}`);
   return summaryParts.join(' : ');
 }
+
+export function listWithMore(items: readonly string[], shown = 2): string {
+  const extra = items.length - shown;
+  return items.slice(0, shown).join(', ') + (extra > 0 ? ` +${extra} more` : '');
+}

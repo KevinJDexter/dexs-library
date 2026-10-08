@@ -3,7 +3,7 @@ import { useLibrary } from "../state/libraryContext";
 import { IonBackButton, IonButton, IonButtons, IonCheckbox, IonChip, IonContent, IonHeader, IonInput, IonItem, IonLabel, IonList, IonListHeader, IonPage, IonSegment, IonSegmentButton, IonSelect, IonSelectOption, IonTitle, IonToggle, IonToolbar, useIonAlert, useIonRouter } from "@ionic/react";
 import { Ownership, PLAY_STATUS_LABELS, PLAY_STATUSES, PlayStatus } from "../domain/types";
 import GameThumb from "../components/GameThumb";
-import { gameSummary, playerRange } from "../logic/format";
+import { gameSummary, listWithMore, playerRange } from "../logic/format";
 
 export default function GameDetailPage({backHref}: {backHref: string}) {
   const { gameId } = useParams<{ gameId: string }>();
@@ -74,6 +74,9 @@ export default function GameDetailPage({backHref}: {backHref: string}) {
                 Recommended at {playerRange(Math.min(...game.recommendedPlayers), Math.max(...game.recommendedPlayers))}
               </p>
             ) : null }
+            {game.yearPublished && <p style={{ margin: '2px 0 0' }}>Published {game.yearPublished}</p>}
+            {game.designers?.length ? <p style={{ margin: '2px 0 0' }}>Designed by {listWithMore(game.designers)}</p> : null}
+            {game.publishers?.length ? <p style={{ margin: '2px 0 0' }}>{listWithMore(game.publishers)}</p> : null}
           </div>
         </div>
 
