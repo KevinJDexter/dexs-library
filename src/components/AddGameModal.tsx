@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { BggClient, BggGameDetails, BggSearchResult } from "../services/bgg";
 import { useLibrary } from "../state/libraryContext";
-import { IonButton, IonButtons, IonContent, IonHeader, IonItem, IonLabel, IonList, IonModal, IonSearchbar, IonSpinner, IonText, IonTitle, IonToolbar, useIonToast } from "@ionic/react";
+import { IonButton, IonButtons, IonCheckbox, IonContent, IonHeader, IonItem, IonLabel, IonList, IonModal, IonSearchbar, IonSpinner, IonText, IonTitle, IonToolbar, useIonToast } from "@ionic/react";
 import { Ownership } from "../domain/types";
 import { bggClient } from "../services/bggXmlClient";
+import { rankResults } from "../logic/searchRank";
 
 interface AddGameModalProps {
   isOpen: boolean;
@@ -14,6 +15,7 @@ interface AddGameModalProps {
 }
 
 const WISHLIST = 'wishlist';
+const PAGE_SIZE = 25;
 
 export default function AddGameModal({ isOpen, onClose, defaultTarget = WISHLIST, client = bggClient }: AddGameModalProps) {
   const { data, actions } = useLibrary();
@@ -22,6 +24,8 @@ export default function AddGameModal({ isOpen, onClose, defaultTarget = WISHLIST
   const [results, setResults] = useState<BggSearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [target, setTarget] = useState(defaultTarget);
+  const [exact, setExact] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [presentToast, dismissToast] = useIonToast();
 
   const personName = useMemo(() => (
@@ -41,12 +45,13 @@ export default function AddGameModal({ isOpen, onClose, defaultTarget = WISHLIST
       return;
     };
     setLoading(true);
+    setVisibleCount(PAGE_SIZE);
     client
-      .search(query)
-      .then(res => !cancelled && setResults(res))
+      .search(query, { exact })
+      .then(res => !cancelled && setResults(rankResults(res, query)))
       .finally(() => !cancelled && setLoading(false))
     return () => {cancelled = true};
-  }, [query, client])
+  }, [query, client, exact])
 
   useEffect(() => {
     setTarget(defaultTarget)
@@ -90,6 +95,9 @@ export default function AddGameModal({ isOpen, onClose, defaultTarget = WISHLIST
     }
   }
 
+  const visibleResults = results.slice(0, visibleCount);
+  const remaining = results.length - visibleResults.length
+
   return (
     <IonModal isOpen={isOpen} onDidDismiss={onClose}>
       <IonHeader>
@@ -106,6 +114,15 @@ export default function AddGameModal({ isOpen, onClose, defaultTarget = WISHLIST
             value={searchText}
             onIonInput={(e) => setSearchText(e.detail.value ?? '')}
           />
+          <IonCheckbox
+            slot="end"
+            labelPlacement="start"
+            checked={exact}
+            onIonChange={(e) => setExact(e.detail.checked)}
+            style={{ marginRight: 16 }}
+          >
+            Exact
+          </IonCheckbox>
         </IonToolbar>
       </IonHeader>
       <IonContent>
@@ -115,9 +132,12 @@ export default function AddGameModal({ isOpen, onClose, defaultTarget = WISHLIST
           </div>
         ) : (
           <IonList>
-            {results.map((r) => (
+            {visibleResults.map((r) => (
               <IonItem key={r.bggId}>
-                <IonLabel style={{ opacity: alreadyThere(r.bggId) ? 0.3 : 1}}>{r.name}</IonLabel>
+                <IonLabel style={{ opacity: alreadyThere(r.bggId) ? 0.3 : 1}}>
+                  <h3>{r.name}</h3>
+                  <p>{r.yearPublished}</p>
+                </IonLabel>
                 {!alreadyThere(r.bggId) ? (
                   <IonButton size="small" slot="end" onClick={() => addGame(r)}>
                     Add
@@ -129,6 +149,13 @@ export default function AddGameModal({ isOpen, onClose, defaultTarget = WISHLIST
                 )}
               </IonItem>
             ))}
+            {remaining > 0 && (
+              <IonItem button detail={false} onClick={() => setVisibleCount(count => count + PAGE_SIZE)}>
+                <IonLabel color="primary" className="ion-text-center">
+                  Show {Math.min(PAGE_SIZE, remaining)} more ({remaining} left)
+                </IonLabel>
+              </IonItem>
+            )}
           </IonList>
         )}
         {!loading && query && query === searchText && results.length === 0 && <p>No match found</p>}

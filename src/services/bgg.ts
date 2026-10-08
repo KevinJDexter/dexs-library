@@ -1,7 +1,12 @@
 export interface BggSearchResult {
   bggId: number;
   name: string;
+  yearPublished?: number;
 };
+
+export interface BggSearchOptions {
+  exact?: boolean;
+}
 
 export interface BggGameDetails extends BggSearchResult {
   thumbnail?: string;
@@ -16,6 +21,6 @@ export interface BggGameDetails extends BggSearchResult {
 }
 
 export interface BggClient {
-  search(query: string): Promise<BggSearchResult[]>;
+  search(query: string, options?: BggSearchOptions): Promise<BggSearchResult[]>;
   getDetails(bggId: number): Promise<BggGameDetails>;
 }

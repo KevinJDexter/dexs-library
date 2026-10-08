@@ -42,12 +42,15 @@ function parsePlayerPoll(item: Element) {
 
 export function createXmlBggClient(token: string): BggClient {
   return {
-    async search(query): Promise<BggSearchResult[]> {
-      if (!query.trim) return [];
-      const doc = await getXml('search', { query, type: 'boardgame' }, token);
-      return [...doc.querySelectorAll('item')].sort((a, b) => Number(a.getAttribute('id')) - Number(b.getAttribute('id'))).slice(0, 25).map((item => ({
+    async search(query, options = {}): Promise<BggSearchResult[]> {
+      if (!query.trim()) return [];
+      const params: Record<string, string> = { query, type: 'boardgame'};
+      if (options.exact) params.exact = '1';
+      const doc = await getXml('search', params, token);
+      return [...doc.querySelectorAll('item')].map((item => ({
         bggId: Number(item.getAttribute('id')),
-        name: attr(item.querySelector('name')) ?? 'Unknown'
+        name: attr(item.querySelector('name')) ?? 'Unknown',
+        yearPublished: num(item.querySelector('yearpublished')),
       })));
     },
 
