@@ -1,9 +1,8 @@
 import { useParams } from "react-router";
 import { useLibrary } from "../state/libraryContext";
-import { IonBackButton, IonButton, IonButtons, IonCheckbox, IonChip, IonContent, IonHeader, IonInput, IonItem, IonLabel, IonList, IonListHeader, IonPage, IonSegment, IonSegmentButton, IonSelect, IonSelectOption, IonTitle, IonToggle, IonToolbar, useIonAlert, useIonRouter } from "@ionic/react";
+import { IonBackButton, IonButton, IonButtons, IonCheckbox, IonContent, IonHeader, IonInput, IonItem, IonLabel, IonList, IonListHeader, IonPage, IonSegment, IonSegmentButton, IonSelect, IonSelectOption, IonTitle, IonToggle, IonToolbar, useIonAlert, useIonRouter } from "@ionic/react";
 import { Ownership, PLAY_STATUS_LABELS, PLAY_STATUSES, PlayStatus } from "../domain/types";
-import GameThumb from "../components/GameThumb";
-import { gameSummary, listWithMore, playerRange } from "../logic/format";
+import GameHeader from "../components/GameHeader";
 
 export default function GameDetailPage({backHref}: {backHref: string}) {
   const { gameId } = useParams<{ gameId: string }>();
@@ -64,28 +63,8 @@ export default function GameDetailPage({backHref}: {backHref: string}) {
         </IonToolbar>
       </IonHeader>
       <IonContent>
-        <div className="ion-padding" style={{ display: "flex", gap: 16, alignItems: "center" }}>
-          <GameThumb name={game.name} src={game.thumbnail} />
-          <div>
-            <h2 style={{ margin: 0 }}>{game.name}</h2>
-            <p style={{margin: '4px 0 0'}}>{gameSummary(game)}</p>
-            {game.recommendedPlayers?.length ? (
-              <p style={{ margin: '2px 0 0'}}>
-                Recommended at {playerRange(Math.min(...game.recommendedPlayers), Math.max(...game.recommendedPlayers))}
-              </p>
-            ) : null }
-            {game.yearPublished && <p style={{ margin: '2px 0 0' }}>Published {game.yearPublished}</p>}
-            {game.designers?.length ? <p style={{ margin: '2px 0 0' }}>Designed by {listWithMore(game.designers)}</p> : null}
-            {game.publishers?.length ? <p style={{ margin: '2px 0 0' }}>{listWithMore(game.publishers)}</p> : null}
-          </div>
-        </div>
-
-        <div className="ion-padding-horizontal">
-          {game.categories?.map(category => (
-            <IonChip key={category} outline>
-              {category}
-            </IonChip>
-          ))}
+        <div className="ion-padding">
+          <GameHeader game={game}/>
         </div>
 
         <div className="ion-padding-horizontal ion-padding-top">

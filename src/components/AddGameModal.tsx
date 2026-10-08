@@ -5,6 +5,7 @@ import { IonButton, IonButtons, IonCheckbox, IonContent, IonHeader, IonItem, Ion
 import { Ownership } from "../domain/types";
 import { bggClient } from "../services/bggXmlClient";
 import { rankResults } from "../logic/searchRank";
+import GamePreview from "./GamePreview";
 
 interface AddGameModalProps {
   isOpen: boolean;
@@ -23,9 +24,11 @@ export default function AddGameModal({ isOpen, onClose, defaultTarget = WISHLIST
   const [searchText, setSearchText] = useState('');
   const [results, setResults] = useState<BggSearchResult[]>([]);
   const [loading, setLoading] = useState(false);
+  const [adding, setAdding] = useState<number[]>([]);
   const [target, setTarget] = useState(defaultTarget);
   const [exact, setExact] = useState(false);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [previewing, setPreviewing] = useState<BggSearchResult | null>(null);
   const [presentToast, dismissToast] = useIonToast();
 
   const personName = useMemo(() => (
@@ -67,18 +70,27 @@ export default function AddGameModal({ isOpen, onClose, defaultTarget = WISHLIST
     ))
   )
 
-  async function addGame(game: BggSearchResult) {
-    const details: BggGameDetails = await client.getDetails(game.bggId);
-    const ownership: Ownership = target === WISHLIST ? { kind: WISHLIST } : { kind: 'owned', ownerId: target }
-    actions.addGame({
-      ...details,
-      ownership,
-      status: 'not-played',
-      favorite: false,
-    });
-    const addedTo = target === WISHLIST ? 'the wishlist' : `${personName}'s games`
-    await dismissToast();
-    presentToast(`${game.name} added to ${addedTo}`, 1000);
+  async function addGame(game: BggSearchResult, knownDetails?: BggGameDetails) {
+    if (adding.includes(game.bggId)) return;
+    setAdding(ids => [...ids, game.bggId]);
+    try {
+      const details: BggGameDetails = knownDetails ?? await client.getDetails(game.bggId);
+      const ownership: Ownership = target === WISHLIST ? { kind: WISHLIST } : { kind: 'owned', ownerId: target }
+      actions.addGame({
+        ...details,
+        ownership,
+        status: 'not-played',
+        favorite: false,
+      });
+      const addedTo = target === WISHLIST ? 'the wishlist' : `${personName}'s games`
+      await dismissToast();
+      presentToast(`${game.name} added to ${addedTo}`, 1000);
+    } catch (err) {
+      await dismissToast();
+      presentToast({ message: `Couldn't add ${game.name}: ${(err as Error).message}`, duration: 3000, color: 'danger' });
+    } finally {
+      setAdding(ids => ids.filter(id => id !== game.bggId));
+    }
   }
 
   async function removeGame(game: BggSearchResult) {
@@ -133,17 +145,17 @@ export default function AddGameModal({ isOpen, onClose, defaultTarget = WISHLIST
         ) : (
           <IonList>
             {visibleResults.map((r) => (
-              <IonItem key={r.bggId}>
+              <IonItem key={r.bggId} detail={false} onClick={() => setPreviewing(r)}>
                 <IonLabel style={{ opacity: alreadyThere(r.bggId) ? 0.3 : 1}}>
                   <h3>{r.name}</h3>
                   <p>{r.yearPublished}</p>
                 </IonLabel>
                 {!alreadyThere(r.bggId) ? (
-                  <IonButton size="small" slot="end" onClick={() => addGame(r)}>
+                  <IonButton size="small" slot="end" disabled={adding.includes(r.bggId)} onClick={(e) => { e.stopPropagation(); addGame(r)}} >
                     Add
                   </IonButton>
                 ) : (
-                  <IonButton size="small" slot="end" onClick={() => removeGame(r)}>
+                  <IonButton size="small" slot="end" onClick={(e) => { e.stopPropagation(); removeGame(r)}}>
                     Remove
                   </IonButton>
                 )}
@@ -161,6 +173,19 @@ export default function AddGameModal({ isOpen, onClose, defaultTarget = WISHLIST
         {!loading && query && query === searchText && results.length === 0 && <p>No match found</p>}
         {!searchText && <p>Waiting for query</p>}
       </IonContent>
+
+      <IonModal isOpen={previewing !== null} onDidDismiss={() => setPreviewing(null)} initialBreakpoint={0.75} breakpoints={[0, 0.75, 1]}>
+        {previewing && (
+          <GamePreview
+            result={previewing}
+            client={client}
+            alreadyAdded={alreadyThere(previewing.bggId)}
+            adding={adding.includes(previewing.bggId)}
+            onAdd={(details) => addGame(previewing, details)}
+            onRemove={() => removeGame(previewing)}
+          />
+        )}
+      </IonModal>
     </IonModal>
   )
 }

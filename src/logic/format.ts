@@ -1,5 +1,7 @@
 import { Game } from "../domain/types";
 
+type SummaryFields = Pick<Game, 'minPlayers' | 'maxPlayers' | 'bestPlayers' | 'playTime' | 'complexity'>;
+
 export function playerRange(min: number, max: number): string {
   return min === max ? `${min}` : `${min}-${max}`
 }
@@ -11,7 +13,7 @@ function gameComplexityToLabel(complexity: number): string {
   return "Very Complex";
 }
 
-export function gameSummary(game: Game): string {
+export function gameSummary(game: SummaryFields): string {
   const summaryParts: string[] = [];
   summaryParts.push(`${playerRange(game.minPlayers, game.maxPlayers)} players`);
   if (game.bestPlayers?.length) {
