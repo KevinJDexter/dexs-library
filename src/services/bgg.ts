@@ -25,4 +25,5 @@ export interface BggGameDetails extends BggSearchResult, BggExtras {
 export interface BggClient {
   search(query: string, options?: BggSearchOptions): Promise<BggSearchResult[]>;
   getDetails(bggId: number): Promise<BggGameDetails>;
+  getDetailsMany(bggIds: number[]): Promise<BggGameDetails[]>;
 }

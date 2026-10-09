@@ -5,6 +5,10 @@ import { parseSearch, parseThing } from "./bggParse";
 
 const BASE = Capacitor.isNativePlatform() ? 'https://boardgamegeek.com/xmlapi2' : '/bgg';
 const token = import.meta.env.VITE_BGG_TOKEN as string | undefined;
+const BATCH_SIZE = 20;
+const BATCH_PAUSE_MS = 2000;
+
+const pause = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 async function getXml(path: string, params: Record<string, string>, token: string): Promise<Document> {
   const res = await CapacitorHttp.get({
@@ -34,6 +38,17 @@ export function createXmlBggClient(token: string): BggClient {
       const item = doc.querySelector('item');
       if (!item) throw new Error(`No game with BGG id ${bggId}`);
       return parseThing(item);
+    },
+
+    async getDetailsMany(bggIds): Promise<BggGameDetails[]> {
+      const all = [];
+      for (let start = 0; start <= bggIds.length; start += BATCH_SIZE) {
+        if (start > 0) await pause(BATCH_PAUSE_MS);
+        const batch = bggIds.slice(start, start + BATCH_SIZE);
+        const doc = await getXml('thing', { id: batch.join(','), stats: '1'}, token);
+        all.push(...[...doc.querySelectorAll('items > item')].map(parseThing));
+      }
+      return all;
     }
   }
 }

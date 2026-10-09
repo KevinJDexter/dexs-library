@@ -11,10 +11,16 @@ export const mockBggClient: BggClient = {
     return MOCK_CATALOG.filter((game) => options.exact ? game.name.toLowerCase() === q : game.name.toLowerCase().includes(q))
       .map(({ bggId, name, yearPublished }) => ({ bggId, name, yearPublished })) 
   },
+
   async getDetails(bggId) {
     await delay(300);
     const game = MOCK_CATALOG.find(game => game.bggId === bggId);
     if (!game) throw new Error (`No game found with id ${bggId}`);
     return structuredClone(game) as BggGameDetails;
+  },
+
+  async getDetailsMany(bggIds) {
+    await delay(300);
+    return MOCK_CATALOG.filter(game => bggIds.includes(game.bggId)).map(game => structuredClone(game));
   }
 }

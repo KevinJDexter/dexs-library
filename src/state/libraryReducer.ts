@@ -11,7 +11,10 @@ export type LibraryAction =
   | { type: "createList"; list: GameList}
   | { type: "renameList"; id: string, name: string}
   | { type: "deleteList"; id: string}
-  | { type: "setGameLists"; gameId: string; listIds: string[]};
+  | { type: "setGameLists"; gameId: string; listIds: string[]}
+  | { type: "updateBggDetails"; details: BggUpdate[]; syncedAt: string };
+
+export type BggUpdate = Partial<Omit<Game, "id">> & { bggId: number };
 
 export function libraryReducer (state: LibraryData, action: LibraryAction): LibraryData {
   switch (action.type) {
@@ -82,6 +85,18 @@ export function libraryReducer (state: LibraryData, action: LibraryAction): Libr
               : list.gameIds.filter(id => id !== action.gameId)
           }
         })
-      }
+      };
+    case "updateBggDetails": {
+      const byBggId = new Map(action.details.map(details => [details.bggId, details]));
+      console.log(action.details)
+      return {
+        ...state,
+        // Every copy of the game is updated, e.g. when two people own Azul.
+        games: state.games.map(game => {
+          const details = game.bggId === undefined ? undefined : byBggId.get(game.bggId);
+          return details ? { ...game, ...details, syncedAt: action.syncedAt } : game;
+        }),
+      };
+    };
   }
 }

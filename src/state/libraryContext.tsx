@@ -1,7 +1,7 @@
 import { createContext, ReactNode, useContext, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { Game, Person, PersonId } from "../domain/types";
 import { emptyLibrary, loadLibrary, saveLibrary } from "../storage/LibraryRepository";
-import { libraryReducer } from "./libraryReducer";
+import { BggUpdate, libraryReducer } from "./libraryReducer";
 import { newId } from "../domain/id";
 
 type NewGame = Omit<Game, "id" >
@@ -69,6 +69,9 @@ function useLibraryStore() {
       ),
       setGameLists: (gameId: string, listIds: string[]) => (
         dispatch({ type: 'setGameLists', gameId, listIds })
+      ),
+      updateBggDetails: (details: BggUpdate[]) => (
+        dispatch({ type: 'updateBggDetails', details, syncedAt: new Date().toISOString() })
       )
     }),
     []

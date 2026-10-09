@@ -1,15 +1,35 @@
 import { useParams } from "react-router";
 import { useLibrary } from "../state/libraryContext";
-import { IonBackButton, IonButton, IonButtons, IonCheckbox, IonContent, IonHeader, IonInput, IonItem, IonLabel, IonList, IonListHeader, IonPage, IonSegment, IonSegmentButton, IonSelect, IonSelectOption, IonTitle, IonToggle, IonToolbar, useIonAlert, useIonRouter } from "@ionic/react";
+import { IonBackButton, IonButton, IonButtons, IonCheckbox, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonListHeader, IonPage, IonSegment, IonSegmentButton, IonSelect, IonSelectOption, IonSpinner, IonTitle, IonToggle, IonToolbar, useIonAlert, useIonRouter, useIonToast } from "@ionic/react";
 import { Ownership, PLAY_STATUS_LABELS, PLAY_STATUSES, PlayStatus } from "../domain/types";
 import GameHeader from "../components/GameHeader";
+import { useState } from "react";
+import { bggClient } from "../services/bggXmlClient";
+import { refreshOutline } from "ionicons/icons";
 
 export default function GameDetailPage({backHref}: {backHref: string}) {
   const { gameId } = useParams<{ gameId: string }>();
   const { data, actions } = useLibrary();
   const [ presentAlert ] = useIonAlert();
   const router = useIonRouter();
+  const [ presentToast ] = useIonToast();
+  const [ refreshing, setRefreshing ] = useState(false);
+
   const game = data.games.find(g => g.id === gameId);
+
+  async function refreshFromBgg() {
+    if (!game?.bggId) return;
+    setRefreshing(true);
+    try {
+      const details = await bggClient.getDetails(game.bggId);
+      actions.updateBggDetails([details]);
+      presentToast({ message: "Updated from BGG", duration: 1000 });
+    } catch (err) {
+      presentToast({ message: `Couldn't refresh: ${(err as Error).message}`, duration: 3000, color: 'danger' });
+    } finally {
+      setRefreshing(false);
+    }
+  }
 
   if (!game) {
     return (
@@ -60,11 +80,19 @@ export default function GameDetailPage({backHref}: {backHref: string}) {
             <IonBackButton defaultHref={backHref}/>
           </IonButtons>
           <IonTitle>{game.name}</IonTitle>
+          {game.bggId && (
+            <IonButtons slot="end">
+              <IonButton onClick={refreshFromBgg} disabled={refreshing} aria-label="Refresh from BGG">
+                {refreshing ? <IonSpinner name="crescent" /> : <IonIcon slot="icon-only" icon={refreshOutline} />}
+              </IonButton>
+            </IonButtons>
+          )}
         </IonToolbar>
       </IonHeader>
       <IonContent>
         <div className="ion-padding">
           <GameHeader game={game}/>
+          {game.syncedAt && <p style={{ margin: '2px 0 0', fontSize: 12, opacity: 0.6 }}>BGG data from {new Date(game.syncedAt).toLocaleDateString()}</p>}
         </div>
 
         <div className="ion-padding-horizontal ion-padding-top">

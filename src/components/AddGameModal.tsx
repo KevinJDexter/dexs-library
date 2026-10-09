@@ -81,6 +81,8 @@ export default function AddGameModal({ isOpen, onClose, defaultTarget = WISHLIST
         ownership,
         status: 'not-played',
         favorite: false,
+        addedAt: new Date().toISOString(),
+        syncedAt: new Date().toISOString(),
       });
       const addedTo = target === WISHLIST ? 'the wishlist' : `${personName}'s games`
       await dismissToast();

@@ -53,6 +53,7 @@ export interface Game extends BggExtras {
   status: PlayStatus;
   favorite: boolean;
   addedAt?: string;
+  syncedAt?: string;
 };
 
 export interface GameList {

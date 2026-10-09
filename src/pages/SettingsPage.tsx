@@ -3,11 +3,26 @@ import { useLibrary } from "../state/libraryContext";
 import { useState } from "react";
 import { Person } from "../domain/types";
 import { trashOutline } from "ionicons/icons";
+import { bggClient } from "../services/bggXmlClient";
 
 export default function SettingsPage() {
   const { data, actions } = useLibrary();
   const [ newName, setNewName ] = useState('');
+  const [ refreshStatus, setRefreshStatus ] = useState<string | null>(null)
   const [ presentAlert ] = useIonAlert();
+  
+  const bggIds = [...new Set(data.games.flatMap(game => game.bggId === undefined ? [] : [game.bggId]))];
+
+  async function refreshAll() {
+    setRefreshStatus(`Refreshing ${bggIds.length} games...`);
+    try {
+      const details = await bggClient.getDetailsMany(bggIds);
+      actions.updateBggDetails(details);
+      setRefreshStatus(`Updated ${details.length} ${details.length === 1 ? "game" : "games"}`);
+    } catch (err) {
+      setRefreshStatus(`Stopped: ${(err as Error).message}`);
+    }
+  }
   
   function addPerson() {
     const name = newName.trim();
@@ -78,6 +93,17 @@ export default function SettingsPage() {
             <IonButton slot="end" disabled={!newName.trim()} onClick={addPerson}>
               Add
             </IonButton>
+          </IonItem>
+        </IonList>
+        <IonList inset>
+          <IonListHeader>
+            <IonLabel>BoardGameGeek</IonLabel>
+          </IonListHeader>
+          <IonItem button detail={false} disabled={bggIds.length === 0 || refreshStatus?.startsWith('Refreshing')} onClick={refreshAll}>
+            <IonLabel>
+              Refresh all games from BGG
+              <p>{refreshStatus ?? `${bggIds.length} games, about ${Math.ceil(bggIds.length / 20) * 2} seconds`}</p>
+            </IonLabel>
           </IonItem>
         </IonList>
       </IonContent>
