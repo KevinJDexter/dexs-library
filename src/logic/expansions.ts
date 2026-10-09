@@ -16,9 +16,12 @@ export function baseGamesByExpansion(games: readonly Game[]): Map<number, BggRef
 export function expansionCounts(game: Game, expansions: Record<number, ExpansionState>) {
   const catalog = game.expansionCatalog ?? [];
   const states = catalog.map(expansion => expansions[expansion.bggId]?.state);
+  const count = (stateMatch: ExpansionState['state']) => states.filter(state => state === stateMatch).length;
+  const hidden = count('hidden');
   return {
-    total: catalog.length,
-    owned: states.filter(state => state === 'owned').length,
-    wanted: states.filter(state => state === 'wanted').length,
+    total: catalog.length - hidden,
+    owned: count('owned'),
+    wanted: count('wanted'),
+    hidden,
   }
 }

@@ -1,4 +1,4 @@
-import { Game, LibraryData, LibrarySettings } from "../domain/types";
+import { Game, LibraryData, LibrarySettings, PersonId } from "../domain/types";
 
 export const DEFAULT_SETTINGS: LibrarySettings = {
   hiddenFamilyPrefixes: ['Admin', 'Country', 'Crowdfunding', 'Digital Implementations'],
@@ -14,7 +14,18 @@ interface LibraryV1 {
   lists: LibraryData['lists'];
 }
 
-function fromV1(old: LibraryV1): LibraryData {
+interface ExpansionStateV2 {
+  name: string;
+  state: 'owned' | 'wanted';
+  ownerId?: PersonId;
+}
+
+type LibraryV2 = Omit<LibraryData, 'version' | 'expansions'> & {
+  version: 2;
+  expansions: Record<string, ExpansionStateV2>;
+}
+
+function fromV1(old: LibraryV1): LibraryV2 {
   return {
     version: 2,
     people: old.people,
@@ -28,9 +39,19 @@ function fromV1(old: LibraryV1): LibraryData {
   }
 }
 
+function fromV2(old: LibraryV2): LibraryData {
+  const expansions: LibraryData['expansions'] = {};
+  for (const [bggId, { name, state, ownerId }] of Object.entries(old.expansions)) {
+    if (!ownerId) continue;
+    expansions[ownerId] = { ...expansions[ownerId], [Number(bggId)]: { name, state }};
+  }
+  return { ...old, version: 3, expansions };
+}
+
 export function migrate(raw: unknown): LibraryData {
   const version = (raw as { version?: unknown } | null)?.version;
-  if (version === 2) return raw as LibraryData;
-  if (version === 1) return fromV1(raw as LibraryV1);
+  if (version === 3) return raw as LibraryData;
+  if (version === 2) return fromV2(raw as LibraryV2);
+  if (version === 1) return fromV2(fromV1(raw as LibraryV1));
   throw new Error(`Unknown library version: ${String(version)}`);
 }

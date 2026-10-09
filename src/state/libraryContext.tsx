@@ -85,14 +85,17 @@ function useLibraryStore() {
       removePlay: (id: string) => (
         dispatch({ type: 'removePlay', id })
       ),
-      markExpansionOwned: (expansion: BggRef, ownerId: PersonId) => (
-        dispatch({ type: "setExpansion", bggId: expansion.bggId, expansion: { name: expansion.name, state: 'owned', ownerId } })
+      markExpansionOwned: (personId: PersonId, expansion: BggRef) => (
+        dispatch({ type: "setExpansion", personId, bggId: expansion.bggId, expansion: { name: expansion.name, state: 'owned' } })
       ),
-      markExpansionWanted: (expansion: BggRef ) => (
-        dispatch({ type: "setExpansion", bggId: expansion.bggId, expansion: { name: expansion.name, state: 'wanted' } })
+      markExpansionWanted: (personId: PersonId, expansion: BggRef ) => (
+        dispatch({ type: "setExpansion", personId, bggId: expansion.bggId, expansion: { name: expansion.name, state: 'wanted' } })
       ),
-      clearExpansion: (bggId: number ) => (
-        dispatch({ type: "setExpansion", bggId, expansion: null })
+      hideExpansion: (personId: PersonId, expansion: BggRef ) => (
+        dispatch({ type: "setExpansion", personId, bggId: expansion.bggId, expansion: { name: expansion.name, state: 'hidden' } })
+      ),
+      clearExpansion: (personId: PersonId, bggId: number ) => (
+        dispatch({ type: "setExpansion", personId, bggId, expansion: null })
       ),
     }),
     []

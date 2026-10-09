@@ -62,8 +62,7 @@ export interface Play {
 
 export interface ExpansionState {
   name: string;
-  state: 'owned' | 'wanted';
-  ownerId?: PersonId;
+  state: 'owned' | 'wanted' | 'hidden';
 }
 
 export interface FilterPreset {
@@ -78,11 +77,11 @@ export interface LibrarySettings {
 }
 
 export interface LibraryData {
-  version: 2;
+  version: 3;
   people: Person[];
   games: Game[];
   lists: GameList[];
   plays: Play[];
-  expansions: Record<string, ExpansionState>;
+  expansions: Record<PersonId, Record<number, ExpansionState>>;
   settings: LibrarySettings;
 }

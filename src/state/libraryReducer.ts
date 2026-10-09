@@ -15,7 +15,7 @@ export type LibraryAction =
   | { type: "updateBggDetails"; details: BggUpdate[]; syncedAt: string }
   | { type: "logPlay"; play: Play }
   | { type: "removePlay"; id: string }
-  | { type: "setExpansion"; bggId: number; expansion: ExpansionState | null };
+  | { type: "setExpansion"; personId: PersonId; bggId: number; expansion: ExpansionState | null };
 
 export type BggUpdate = Partial<Omit<Game, "id">> & { bggId: number };
 
@@ -60,14 +60,14 @@ export function libraryReducer (state: LibraryData, action: LibraryAction): Libr
           lists: state.lists.map(list => ({ ...list, gameIds: list.gameIds.filter(id => !ownedGameIds.includes(id))})),
           plays: state.plays.filter(play => !ownedGameIds.includes(play.gameId)),
           expansions: Object.fromEntries(
-            Object.entries(state.expansions).filter(([, expansion]) => expansion.ownerId !== action.id)
+            Object.entries(state.expansions).filter(([personId]) => personId !== action.id)
           ),
         }
       }
     case "createList":
       return {
         ...state,
-        lists: [...state.lists, action.list],
+        lists: [...state.lists, action.list]
       };
     case "renameList":
       return {
@@ -116,10 +116,10 @@ export function libraryReducer (state: LibraryData, action: LibraryAction): Libr
         plays: state.plays.filter(play => play.id !== action.id)
       }
     case "setExpansion": {
-      const expansions = {...state.expansions};
-      if (action.expansion) expansions[action.bggId] = action.expansion;
-      else delete expansions[action.bggId];
-      return {...state, expansions}
+      const personExpansions = {...(state.expansions[action.personId] ?? {})};
+      if (action.expansion) personExpansions[action.bggId] = action.expansion;
+      else delete personExpansions[action.bggId];
+      return {...state, expansions: {...state.expansions, [action.personId]: personExpansions}}
     }
   }
 }

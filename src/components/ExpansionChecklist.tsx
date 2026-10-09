@@ -1,45 +1,70 @@
-import { useMemo, useState } from "react";
 import { IonBadge, IonItem, IonLabel, IonList, IonListHeader, IonNote, IonSearchbar, useIonActionSheet } from "@ionic/react";
-import { BggRef, Game } from "../domain/types";
+import { BggRef, ExpansionState, Game } from "../domain/types";
 import { useLibrary } from "../state/libraryContext";
+import { useMemo, useState } from "react";
 import { baseGamesByExpansion, expansionCounts } from "../logic/expansions";
 
 const SEARCH_FROM = 10;
 
-export default function ExpansionChecklist({ game }: { game: Game }) {
+const CLEAR_LABEL: Record<ExpansionState['state'], string> = {
+  owned: 'Not owned',
+  wanted: 'Not wanted',
+  hidden: 'Unhide',
+}
+
+export default function ExpansionChecklist({ game }: {game: Game}) {
   const { data, actions } = useLibrary();
-  const [presentActionSheet] = useIonActionSheet();
-  const [expanded, setExpanded] = useState(false);
-  const [search, setSearch] = useState('');
+  const [ presentActionSheet ] = useIonActionSheet();
+  const [ expanded, setExpanded ] = useState(false);
+  const [ search, setSearch ] = useState('');
+  const [ showHidden, setShowHidden ] = useState(false);
+
+  const ownerId = game.ownership.kind === 'owned' ? game.ownership.ownerId : undefined;
+  const personExpansions = useMemo(() => (ownerId ? data.expansions[ownerId] ?? {} : {}), [ownerId, data.expansions]);
+  const fits = useMemo(
+    () => baseGamesByExpansion(data.games.filter(g => g.ownership.kind === 'owned' && g.ownership.ownerId === ownerId)),
+    [data.games, ownerId]
+  )
 
   const catalog = game.expansionCatalog ?? [];
-  const fits = useMemo(() => baseGamesByExpansion(data.games), [data.games]);
-  const counts = expansionCounts(game, data.expansions);
   if (catalog.length === 0) return null;
 
-  const tracked = catalog.filter(expansion => data.expansions[expansion.bggId]);
+  if (!ownerId) {
+    return (
+      <IonList inset>
+        <IonListHeader>
+          <IonLabel>Expansions</IonLabel>
+        </IonListHeader>
+        <IonItem>
+          <IonLabel color="medium">
+            {catalog.length} on BGG. Give this game an owner to track their expansions.
+          </IonLabel>
+        </IonItem>
+      </IonList>
+    )
+  }
+
+  const counts = expansionCounts(game, personExpansions);
   const query = search.trim().toLowerCase();
+  const stateOf = (expansion: BggRef) => personExpansions[expansion.bggId]?.state;
   const rows = expanded
-    ? catalog.filter(expansion => !query || expansion.name.toLowerCase().includes(query))
-    : tracked;
+    ? catalog.filter(expansion => 
+      (showHidden || stateOf(expansion) !== 'hidden')
+      && (!query || expansion.name.toLowerCase().includes(query)))
+    : catalog.filter(expansion => stateOf(expansion) === 'owned' || stateOf(expansion) === 'wanted')
 
-  const gameOwnerId = game.ownership.kind === 'owned' ? game.ownership.ownerId : undefined;
-  const people = [...data.people].sort((a, b) => Number(b.id === gameOwnerId) - Number(a.id === gameOwnerId));
-
-  function choose(expansion: BggRef) {
-    const current = data.expansions[expansion.bggId];
+  function choose(personId: string, expansion: BggRef) {
+    const current = stateOf(expansion);
     presentActionSheet({
       header: expansion.name,
       buttons: [
-        ...people.map(person => ({
-          text: `Owned by ${person.name}`,
-          handler: () => actions.markExpansionOwned(expansion, person.id),
-        })),
-        { text: 'Wanted', handler: () => actions.markExpansionWanted(expansion) },
-        ...(current ? [{ text: 'Not owned', role: 'destructive', handler: () => actions.clearExpansion(expansion.bggId) }] : []),
-        { text: 'Cancel', role: 'cancel' },
-      ],
-    });
+        { text: 'Owned', handler: () => actions.markExpansionOwned(personId, expansion) },
+        { text: 'Wanted', handler: () => actions.markExpansionWanted(personId, expansion) },
+        ...(current !== 'hidden' ? [{ text: 'Hide', handler: () => actions.hideExpansion(personId, expansion)}] : []),
+        ...(current ? [{ text: CLEAR_LABEL[current], role: 'destructive', handler: () => actions.clearExpansion(personId, expansion.bggId)}] : []),
+        { text: 'Cancel', role: 'cancel'},
+      ]
+    })
   }
 
   return (
@@ -59,20 +84,27 @@ export default function ExpansionChecklist({ game }: { game: Game }) {
       )}
 
       {rows.map(expansion => {
-        const state = data.expansions[expansion.bggId];
-        const owner = data.people.find(person => person.id === state?.ownerId);
+        const state = stateOf(expansion);
         const alsoFits = (fits.get(expansion.bggId) ?? []).filter(base => base.bggId !== game.bggId);
+
         return (
-          <IonItem key={expansion.bggId} button detail={false} onClick={() => choose(expansion)}>
+          <IonItem key={expansion.bggId} button detail={false} onClick={() => choose(ownerId, expansion)}>
             <IonLabel>
               <h3>{expansion.name}</h3>
-              {alsoFits.length > 0 && <p>Also fits {alsoFits.map(base => base.name).join(', ')}</p>}
+              {alsoFits.length > 0 && <p>Also fits {alsoFits.map(fit => fit.name).join(', ')}</p>}
             </IonLabel>
-            {state?.state === 'owned' && <IonBadge slot="end" color="success">{owner?.name ?? 'Owned'}</IonBadge>}
-            {state?.state === 'wanted' && <IonBadge slot="end" color="warning">Wanted</IonBadge>}
+            {state === 'owned' && <IonBadge slot="end" color="success">Owned</IonBadge>}
+            {state === 'wanted' && <IonBadge slot="end" color="warning">Wanted</IonBadge>}
+            {state === 'hidden' && <IonBadge slot="end" color="medium">Hidden</IonBadge>}
           </IonItem>
-        );
+        )
       })}
+
+      {expanded && counts.hidden > 0 && (
+        <IonItem button detail={false} onClick={() => setShowHidden(!showHidden)}>
+          <IonLabel color="medium">{showHidden ? 'Leave out hidden' : `Show ${counts.hidden} hidden`}</IonLabel>
+        </IonItem>
+      )}
     </IonList>
-  );
+  )
 }

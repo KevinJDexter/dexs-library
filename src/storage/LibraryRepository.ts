@@ -6,7 +6,7 @@ const STORAGE_KEY = "dexs-library";
 const BACKUP_KEY = `${STORAGE_KEY}-backup`;
 
 export const emptyLibrary: () => LibraryData = () => ({
-  version: 2,
+  version: 3,
   people: [
     { id: "user1", name: "Dexter" },
     { id: "user2", name: "Joy" },
