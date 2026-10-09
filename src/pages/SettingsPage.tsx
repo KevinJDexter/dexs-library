@@ -1,16 +1,19 @@
-import { IonBackButton, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonListHeader, IonPage, IonTitle, IonToolbar, useIonAlert } from "@ionic/react";
+import { IonBackButton, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonListHeader, IonNote, IonPage, IonTitle, IonToggle, IonToolbar, useIonAlert } from "@ionic/react";
 import { useLibrary } from "../state/libraryContext";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Person } from "../domain/types";
 import { trashOutline } from "ionicons/icons";
 import { bggClient } from "../services/bggXmlClient";
+import { familyPrefixes } from "../logic/families";
 
 export default function SettingsPage() {
   const { data, actions } = useLibrary();
   const [ newName, setNewName ] = useState('');
   const [ refreshStatus, setRefreshStatus ] = useState<string | null>(null)
   const [ presentAlert ] = useIonAlert();
-  
+
+  const prefixes = useMemo(() => familyPrefixes(data.games), [data.games]);
+
   const bggIds = [...new Set(data.games.flatMap(game => game.bggId === undefined ? [] : [game.bggId]))];
 
   async function refreshAll() {
@@ -95,6 +98,23 @@ export default function SettingsPage() {
             </IonButton>
           </IonItem>
         </IonList>
+        {prefixes.length > 0 && (
+          <IonList inset>
+            <IonListHeader>
+              <IonLabel>Family groups to show</IonLabel>
+            </IonListHeader>
+            {prefixes.map(({ prefix, gameCount }) => (
+              <IonItem key={prefix}>
+                <IonToggle
+                  checked={!data.settings.hiddenFamilyPrefixes.includes(prefix)}
+                  onIonChange={(e) => actions.setFamilyPrefixHidden(prefix, !e.detail.checked)}
+                >
+                  {prefix} <IonNote>({gameCount} {gameCount === 1 ? 'game' : 'games'})</IonNote>
+                </IonToggle>
+              </IonItem>
+            ))}
+          </IonList>
+        )}
         <IonList inset>
           <IonListHeader>
             <IonLabel>BoardGameGeek</IonLabel>

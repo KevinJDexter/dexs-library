@@ -97,6 +97,9 @@ function useLibraryStore() {
       clearExpansion: (personId: PersonId, bggId: number ) => (
         dispatch({ type: "setExpansion", personId, bggId, expansion: null })
       ),
+      setFamilyPrefixHidden: (prefix: string, hidden: boolean) => (
+        dispatch({ type: "setFamilyPrefixHidden", prefix, hidden })
+      ),
     }),
     []
   )

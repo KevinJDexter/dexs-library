@@ -15,7 +15,8 @@ export type LibraryAction =
   | { type: "updateBggDetails"; details: BggUpdate[]; syncedAt: string }
   | { type: "logPlay"; play: Play }
   | { type: "removePlay"; id: string }
-  | { type: "setExpansion"; personId: PersonId; bggId: number; expansion: ExpansionState | null };
+  | { type: "setExpansion"; personId: PersonId; bggId: number; expansion: ExpansionState | null }
+  | { type: "setFamilyPrefixHidden"; prefix: string; hidden: boolean };
 
 export type BggUpdate = Partial<Omit<Game, "id">> & { bggId: number };
 
@@ -120,6 +121,16 @@ export function libraryReducer (state: LibraryData, action: LibraryAction): Libr
       if (action.expansion) personExpansions[action.bggId] = action.expansion;
       else delete personExpansions[action.bggId];
       return {...state, expansions: {...state.expansions, [action.personId]: personExpansions}}
+    }
+    case "setFamilyPrefixHidden": {
+      const others = state.settings.hiddenFamilyPrefixes.filter(prefix => prefix !== action.prefix);
+      return {
+        ...state,
+        settings: {
+          ...state.settings,
+          hiddenFamilyPrefixes: action.hidden ? [...others, action.prefix] : others,
+        }
+      }
     }
   }
 }

@@ -9,6 +9,7 @@ import { refreshOutline } from "ionicons/icons";
 import PlayHistory from "../components/PlayHistory";
 import ExpansionChecklist from "../components/ExpansionChecklist";
 import RelatedGames from "../components/RelatedGames";
+import FamilyList from "../components/FamilyList";
 
 export default function GameDetailPage({backHref}: {backHref: string}) {
   const { gameId } = useParams<{ gameId: string }>();
@@ -102,6 +103,7 @@ export default function GameDetailPage({backHref}: {backHref: string}) {
         <PlayHistory game={game} />
         <ExpansionChecklist game={game} />
         <RelatedGames game={game} hrefFor={(id) => location.pathname.replace(/[^/]+$/, id)} />
+        <FamilyList game={game} />
 
         <IonList inset>
           <IonItem>
