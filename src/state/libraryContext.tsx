@@ -1,5 +1,5 @@
 import { createContext, ReactNode, useContext, useEffect, useMemo, useReducer, useRef, useState } from "react";
-import { Game, Person, PersonId } from "../domain/types";
+import { BggRef, Game, Person, PersonId } from "../domain/types";
 import { emptyLibrary, loadLibrary, saveLibrary } from "../storage/LibraryRepository";
 import { BggUpdate, libraryReducer } from "./libraryReducer";
 import { newId } from "../domain/id";
@@ -84,6 +84,15 @@ function useLibraryStore() {
       },
       removePlay: (id: string) => (
         dispatch({ type: 'removePlay', id })
+      ),
+      markExpansionOwned: (expansion: BggRef, ownerId: PersonId) => (
+        dispatch({ type: "setExpansion", bggId: expansion.bggId, expansion: { name: expansion.name, state: 'owned', ownerId } })
+      ),
+      markExpansionWanted: (expansion: BggRef ) => (
+        dispatch({ type: "setExpansion", bggId: expansion.bggId, expansion: { name: expansion.name, state: 'wanted' } })
+      ),
+      clearExpansion: (bggId: number ) => (
+        dispatch({ type: "setExpansion", bggId, expansion: null })
       ),
     }),
     []

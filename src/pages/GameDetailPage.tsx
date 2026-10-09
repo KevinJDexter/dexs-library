@@ -1,4 +1,4 @@
-import { useParams } from "react-router";
+import { useLocation, useParams } from "react-router";
 import { useLibrary } from "../state/libraryContext";
 import { IonBackButton, IonButton, IonButtons, IonCheckbox, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonListHeader, IonPage, IonSelect, IonSelectOption, IonSpinner, IonTitle, IonToggle, IonToolbar, useIonAlert, useIonRouter, useIonToast } from "@ionic/react";
 import { Ownership } from "../domain/types";
@@ -7,6 +7,8 @@ import { useState } from "react";
 import { bggClient } from "../services/bggXmlClient";
 import { refreshOutline } from "ionicons/icons";
 import PlayHistory from "../components/PlayHistory";
+import ExpansionChecklist from "../components/ExpansionChecklist";
+import RelatedGames from "../components/RelatedGames";
 
 export default function GameDetailPage({backHref}: {backHref: string}) {
   const { gameId } = useParams<{ gameId: string }>();
@@ -15,6 +17,7 @@ export default function GameDetailPage({backHref}: {backHref: string}) {
   const router = useIonRouter();
   const [ presentToast ] = useIonToast();
   const [ refreshing, setRefreshing ] = useState(false);
+  const location = useLocation();
 
   const game = data.games.find(g => g.id === gameId);
 
@@ -97,6 +100,8 @@ export default function GameDetailPage({backHref}: {backHref: string}) {
         </div>
 
         <PlayHistory game={game} />
+        <ExpansionChecklist game={game} />
+        <RelatedGames game={game} hrefFor={(id) => location.pathname.replace(/[^/]+$/, id)} />
 
         <IonList inset>
           <IonItem>

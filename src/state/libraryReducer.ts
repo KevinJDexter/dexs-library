@@ -1,4 +1,4 @@
-import { Game, GameList, LibraryData, Person, PersonId, Play } from "../domain/types";
+import { ExpansionState, Game, GameList, LibraryData, Person, PersonId, Play } from "../domain/types";
 
 export type LibraryAction =
   | { type: "hydrate"; data: LibraryData}
@@ -14,7 +14,8 @@ export type LibraryAction =
   | { type: "setGameLists"; gameId: string; listIds: string[]}
   | { type: "updateBggDetails"; details: BggUpdate[]; syncedAt: string }
   | { type: "logPlay"; play: Play }
-  | { type: "removePlay"; id: string };
+  | { type: "removePlay"; id: string }
+  | { type: "setExpansion"; bggId: number; expansion: ExpansionState | null };
 
 export type BggUpdate = Partial<Omit<Game, "id">> & { bggId: number };
 
@@ -58,6 +59,9 @@ export function libraryReducer (state: LibraryData, action: LibraryAction): Libr
           games: remainingGames,
           lists: state.lists.map(list => ({ ...list, gameIds: list.gameIds.filter(id => !ownedGameIds.includes(id))})),
           plays: state.plays.filter(play => !ownedGameIds.includes(play.gameId)),
+          expansions: Object.fromEntries(
+            Object.entries(state.expansions).filter(([, expansion]) => expansion.ownerId !== action.id)
+          ),
         }
       }
     case "createList":
@@ -92,7 +96,6 @@ export function libraryReducer (state: LibraryData, action: LibraryAction): Libr
       };
     case "updateBggDetails": {
       const byBggId = new Map(action.details.map(details => [details.bggId, details]));
-      console.log(action.details)
       return {
         ...state,
         // Every copy of the game is updated, e.g. when two people own Azul.
@@ -112,5 +115,11 @@ export function libraryReducer (state: LibraryData, action: LibraryAction): Libr
         ...state,
         plays: state.plays.filter(play => play.id !== action.id)
       }
+    case "setExpansion": {
+      const expansions = {...state.expansions};
+      if (action.expansion) expansions[action.bggId] = action.expansion;
+      else delete expansions[action.bggId];
+      return {...state, expansions}
+    }
   }
 }
