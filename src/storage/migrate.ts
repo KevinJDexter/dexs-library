@@ -1,7 +1,7 @@
 import { Game, LibraryData, LibrarySettings } from "../domain/types";
 
 export const DEFAULT_SETTINGS: LibrarySettings = {
-  hiddenFamilyPrefixes: ['Admin', 'Contry', 'Crowdfunding', 'Digital Implementations'],
+  hiddenFamilyPrefixes: ['Admin', 'Country', 'Crowdfunding', 'Digital Implementations'],
   filterPresets: []
 }
 
@@ -32,5 +32,5 @@ export function migrate(raw: unknown): LibraryData {
   const version = (raw as { version?: unknown } | null)?.version;
   if (version === 2) return raw as LibraryData;
   if (version === 1) return fromV1(raw as LibraryV1);
-  throw new Error(`Uknown library version: ${String(version)}`);
+  throw new Error(`Unknown library version: ${String(version)}`);
 }

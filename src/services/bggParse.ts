@@ -9,7 +9,7 @@ const num = (el: Element | null | undefined) => {
 }
 
 function parsePlayerPoll(item: Element) {
-  const results = [...item.querySelectorAll('poll[name="suggested_numplayers] results')];
+  const results = [...item.querySelectorAll('poll[name="suggested_numplayers"] results')];
   const votes = results.map(result => {
     const count = (value: string) => Number(attr(result.querySelector(`result[value="${value}"]`), 'numvotes') ?? 0);
     return {
@@ -18,7 +18,7 @@ function parsePlayerPoll(item: Element) {
       recommended: count("Recommended"),
       notRecommended: count("Not Recommended"),
     }
-  }).filter(res => Number.isInteger(res));
+  }).filter(res => Number.isInteger(res.players));
 
   return summarizePlayerPoll(votes)
 }

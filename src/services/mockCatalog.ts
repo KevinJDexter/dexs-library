@@ -12,7 +12,14 @@ export const MOCK_CATALOG: BggGameDetails[] = [
   { bggId: 102652, name: 'Sentinels of the Multiverse', minPlayers: 1, maxPlayers: 5, bestPlayers: [3, 4], recommendedPlayers: [2, 3, 4, 5], playTime: 60, complexity: 2.6, categories: ['Card Game', 'Comic Book'], mechanics: ['Cooperative', 'Hand Management'] },
   { bggId: 237182, name: 'Root', minPlayers: 2, maxPlayers: 4, bestPlayers: [4], recommendedPlayers: [3, 4], playTime: 90, complexity: 3.7, categories: ['Animals', 'Wargame'], mechanics: ['Asymmetric', 'Area Control'] },
   { bggId: 65244, name: 'Forbidden Island', minPlayers: 2, maxPlayers: 4, bestPlayers: [3, 4], recommendedPlayers: [2, 3, 4], playTime: 30, complexity: 1.7, categories: ['Adventure', 'Exploration'], mechanics: ['Cooperative', 'Set Collection'] },
-  { bggId: 230802, name: 'Azul', minPlayers: 2, maxPlayers: 4, bestPlayers: [2], recommendedPlayers: [2, 3, 4], playTime: 45, complexity: 1.8, categories: ['Abstract Strategy'], mechanics: ['Pattern Building', 'Tile Placement'] },
+  {
+    bggId: 230802, name: 'Azul', yearPublished: 2017, minPlayers: 2, maxPlayers: 4, bestPlayers: [2], recommendedPlayers: [2, 3, 4], playTime: 45, complexity: 1.8,
+    categories: ['Abstract Strategy'], mechanics: ['Pattern Building', 'Tile Placement'],
+    designers: ['Michael Kiesling'], publishers: ['Next Move Games', 'Plan B Games', 'Asmodee', 'Pegasus Spiele'],
+    families: ['Game: Azul', 'Theme: Art', 'Country: Portugal', 'Digital Implementations: Steam'],
+    expansionCatalog: [{ bggId: 900201, name: 'Azul: Crystal Mosaic (mock)' }, { bggId: 900202, name: 'Azul: Joker Tiles (mock)' }],
+    reimplementedBy: [{ bggId: 900203, name: 'Azul: Summer Pavilion (mock)' }],
+  },
   { bggId: 148228, name: 'Splendor', minPlayers: 2, maxPlayers: 4, bestPlayers: [3], recommendedPlayers: [2, 3, 4], playTime: 30, complexity: 1.8, categories: ['Card Game', 'Economic'], mechanics: ['Engine Building', 'Set Collection'] },
   { bggId: 1258, name: 'Phase 10', minPlayers: 2, maxPlayers: 6, bestPlayers: [4], recommendedPlayers: [3, 4, 5], playTime: 45, complexity: 1.2, categories: ['Card Game'], mechanics: ['Hand Management', 'Set Collection'] },
   { bggId: 284083, name: 'The Crew', minPlayers: 2, maxPlayers: 5, bestPlayers: [4], recommendedPlayers: [3, 4, 5], playTime: 20, complexity: 2.0, categories: ['Card Game', 'Space'], mechanics: ['Cooperative', 'Trick-Taking'] },
@@ -31,4 +38,24 @@ export const MOCK_CATALOG: BggGameDetails[] = [
   { bggId: 467446, name: 'Cross the Line', minPlayers: 2, maxPlayers: 8, playTime: 30, complexity: 1.1, categories: ['Party Game'], mechanics: ['Betting and Bluffing'] },
   { bggId: 68448, name: '7 Wonders', minPlayers: 2, maxPlayers: 7, bestPlayers: [4, 5], recommendedPlayers: [3, 4, 5, 6, 7], playTime: 30, complexity: 2.3, categories: ['Ancient', 'Card Game'], mechanics: ['Card Drafting', 'Set Collection'] },
   { bggId: 173346, name: '7 Wonders Duel', minPlayers: 2, maxPlayers: 2, bestPlayers: [2], recommendedPlayers: [2], playTime: 30, complexity: 2.2, categories: ['Ancient', 'Card Game'], mechanics: ['Card Drafting', 'Set Collection'] },
+    // Made-up ids (900000+) so the expansion features can be tried without a BGG token.
+  {
+    bggId: 900001, name: 'Compile: Main 1 (mock)', yearPublished: 2024, minPlayers: 2, maxPlayers: 2, bestPlayers: [2], recommendedPlayers: [2], playTime: 20, complexity: 2.1,
+    categories: ['Card Game'], mechanics: ['Hand Management'], designers: ['Michael Yang'], publishers: ['Greater Than Games'],
+    families: ['Game: Compile', 'Theme: Computers', 'Crowdfunding: Kickstarter'],
+    expansionCatalog: [{ bggId: 900101, name: 'Compile: Aux 1 (mock)' }, { bggId: 900102, name: 'Compile: Aux 2 (mock)' }],
+    integrations: [{ bggId: 900002, name: 'Compile: Main 2 (mock)' }],
+  },
+  {
+    bggId: 900002, name: 'Compile: Main 2 (mock)', yearPublished: 2025, minPlayers: 2, maxPlayers: 2, bestPlayers: [2], recommendedPlayers: [2], playTime: 20, complexity: 2.2,
+    categories: ['Card Game'], mechanics: ['Hand Management'], designers: ['Michael Yang'], publishers: ['Greater Than Games'],
+    families: ['Game: Compile', 'Theme: Computers', 'Crowdfunding: Kickstarter'],
+    expansionCatalog: [{ bggId: 900101, name: 'Compile: Aux 1 (mock)' }],
+    integrations: [{ bggId: 900001, name: 'Compile: Main 1 (mock)' }],
+  },
+  {
+    bggId: 900101, name: 'Compile: Aux 1 (mock)', yearPublished: 2025, isExpansion: true, minPlayers: 2, maxPlayers: 2, playTime: 20,
+    categories: ['Card Game', 'Expansion for Base-game'], mechanics: [],
+    expansionOf: [{ bggId: 900001, name: 'Compile: Main 1 (mock)' }, { bggId: 900002, name: 'Compile: Main 2 (mock)' }],
+  },
 ];

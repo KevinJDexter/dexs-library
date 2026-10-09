@@ -72,6 +72,7 @@ export default function PickPage() {
                 playerCount: 2,
                 playerFit: 'recommended',
                 scope: 'owned',
+                played: 'never',
               })
             }
           >
@@ -134,6 +135,7 @@ export default function PickPage() {
           people={data.people}
           lists={data.lists}
           categories={allCategories(data.games)}
+          showOwner={true}
         />
     </IonPage>
   )

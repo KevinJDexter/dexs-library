@@ -42,7 +42,7 @@ export function createXmlBggClient(token: string): BggClient {
 
     async getDetailsMany(bggIds): Promise<BggGameDetails[]> {
       const all = [];
-      for (let start = 0; start <= bggIds.length; start += BATCH_SIZE) {
+      for (let start = 0; start < bggIds.length; start += BATCH_SIZE) {
         if (start > 0) await pause(BATCH_PAUSE_MS);
         const batch = bggIds.slice(start, start + BATCH_SIZE);
         const doc = await getXml('thing', { id: batch.join(','), stats: '1'}, token);

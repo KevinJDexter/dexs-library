@@ -146,7 +146,7 @@ export default function AddGameModal({ isOpen, onClose, defaultTarget = WISHLIST
         ) : (
           <IonList>
             {visibleResults.map((r) => (
-              <IonItem key={r.bggId} detail={false} onClick={() => setPreviewing(r)}>
+              <IonItem key={r.bggId} button detail={false} onClick={() => setPreviewing(r)}>
                 <IonLabel style={{ opacity: alreadyThere(r.bggId) ? 0.3 : 1}}>
                   <h3>{r.name}</h3>
                   <p>{r.yearPublished}</p>
