@@ -1,14 +1,17 @@
-import { Game, GameList, PersonId, PlayStatus } from "../domain/types";
+import { Game, GameList, PersonId } from "../domain/types";
+import { isStale, PlayStats } from "./plays";
 
 export type Scope = 'owned' | 'wishlist' | 'all';
 
 export type PlayerFit = 'supports' | 'recommended' | 'best';
 
+export type PlayedFilter = 'any' | 'never' | 'played' | 'stale';
+
 export interface GameFilters {
   search: string;
   scope: Scope;
   ownerId: PersonId | 'any';
-  statuses: PlayStatus[]; // empty = any status
+  played: PlayedFilter;
   favoritesOnly: boolean;
   playerCount: number | null;
   playerFit: PlayerFit;
@@ -26,7 +29,7 @@ export const DEFAULT_FILTERS: GameFilters = {
   search: '',
   scope: 'all',
   ownerId: 'any',
-  statuses: [],
+  played: 'any',
   favoritesOnly: false,
   playerCount: null,
   playerFit: 'supports',
@@ -34,7 +37,7 @@ export const DEFAULT_FILTERS: GameFilters = {
   maxPlayTime: null,
   maxSetupTime: null,
   categories: [],
-  listId: null
+  listId: null,
 }
 
 const complexityIsDefault = (filters: GameFilters) => (
@@ -48,7 +51,12 @@ export function fitsPlayerCount(game: Game, count: number, fit: PlayerFit) {
   return game.recommendedPlayers?.includes(count) ?? supported;
 }
 
-export function applyFilters(games: readonly Game[], filters: GameFilters, lists: readonly GameList[]): Game[] {
+export function applyFilters(
+  games: readonly Game[],
+  filters: GameFilters,
+  lists: readonly GameList[],
+  stats: ReadonlyMap<string, PlayStats>,
+): Game[] {
   const listIds = filters.listId ? new Set(lists.find(list => list.id === filters.listId)?.gameIds ?? []) : null;
   const search = filters.search.trim().toLowerCase();
 
@@ -56,7 +64,13 @@ export function applyFilters(games: readonly Game[], filters: GameFilters, lists
     if (filters.scope === 'owned' && game.ownership.kind !== 'owned') return false;
     if (filters.scope === 'wishlist' && game.ownership.kind !== 'wishlist') return false;
     if (filters.ownerId !== 'any' && !(game.ownership.kind === 'owned' && game.ownership.ownerId === filters.ownerId)) return false;
-    if (filters.statuses.length && !filters.statuses.includes(game.status)) return false;
+    if (filters.played !== 'any') {
+      const gameStats = stats.get(game.id);
+      const count = gameStats?.count ?? 0;
+      if (filters.played === 'never' && count > 0) return false;
+      if (filters.played === 'played' && count === 0) return false;
+      if (filters.played === 'stale' && !isStale(gameStats)) return false;
+    }
     if (filters.favoritesOnly && !game.favorite) return false;
     if (filters.playerCount && !fitsPlayerCount(game, filters.playerCount, filters.playerFit)) return false;
     if (!complexityIsDefault(filters)) {
@@ -76,7 +90,7 @@ export function applyFilters(games: readonly Game[], filters: GameFilters, lists
 export function countActiveFilters(filters: GameFilters): number {
   return [
     filters.ownerId !== 'any',
-    filters.statuses.length > 0,
+    filters.played !== 'any',
     filters.favoritesOnly,
     filters.playerCount !== null,
     !complexityIsDefault(filters),

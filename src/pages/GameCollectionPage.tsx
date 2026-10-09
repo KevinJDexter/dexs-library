@@ -14,7 +14,7 @@ interface GameCollectionPageProps {
 }
 
 export default function GameCollectionPage({ title, scope, basePath }: GameCollectionPageProps) {
-  const { data, ready } = useLibrary();
+  const { data, stats, ready } = useLibrary();
   const [ filters, setFilters ] = useState<GameFilters>({ ...DEFAULT_FILTERS, scope })
   const [ filterModalOpen, setFilterModalOpen ] = useState(false);
   const [ addGameModalOpen, setAddGameModalOpen ] = useState(false);
@@ -26,8 +26,8 @@ export default function GameCollectionPage({ title, scope, basePath }: GameColle
     data.games.filter(game => scope === 'owned' ? game.ownership.kind === 'owned' && game.ownership.ownerId === libraryOwnerId : game.ownership.kind === 'wishlist')
   ), [data.games, libraryOwnerId, scope])
   const visible = useMemo(() => (
-    applyFilters(ownedGames, filters, data.lists).sort((a, b) => a.name.localeCompare(b.name))
-  ), [ownedGames, data.lists, filters])
+    applyFilters(ownedGames, filters, data.lists, stats).sort((a, b) => a.name.localeCompare(b.name))
+  ), [ownedGames, data.lists, filters, stats])
   const activeCount = countActiveFilters(filters);
   const totalInScope = ownedGames.length;
   

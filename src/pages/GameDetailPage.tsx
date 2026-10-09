@@ -1,7 +1,7 @@
 import { useParams } from "react-router";
 import { useLibrary } from "../state/libraryContext";
-import { IonBackButton, IonButton, IonButtons, IonCheckbox, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonListHeader, IonPage, IonSegment, IonSegmentButton, IonSelect, IonSelectOption, IonSpinner, IonTitle, IonToggle, IonToolbar, useIonAlert, useIonRouter, useIonToast } from "@ionic/react";
-import { Ownership, PLAY_STATUS_LABELS, PLAY_STATUSES, PlayStatus } from "../domain/types";
+import { IonBackButton, IonButton, IonButtons, IonCheckbox, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonListHeader, IonPage, IonSelect, IonSelectOption, IonSpinner, IonTitle, IonToggle, IonToolbar, useIonAlert, useIonRouter, useIonToast } from "@ionic/react";
+import { Ownership } from "../domain/types";
 import GameHeader from "../components/GameHeader";
 import { useState } from "react";
 import { bggClient } from "../services/bggXmlClient";
@@ -95,16 +95,6 @@ export default function GameDetailPage({backHref}: {backHref: string}) {
           {game.syncedAt && <p style={{ margin: '2px 0 0', fontSize: 12, opacity: 0.6 }}>BGG data from {new Date(game.syncedAt).toLocaleDateString()}</p>}
         </div>
 
-        <div className="ion-padding-horizontal ion-padding-top">
-          <IonSegment value={game.status} onIonChange={(e) => actions.updateGame(game.id, {'status': e.detail.value as PlayStatus})}>
-            {PLAY_STATUSES.map(status => (
-              <IonSegmentButton key={status} value={status}>
-                <IonLabel>{PLAY_STATUS_LABELS[status]}</IonLabel>
-              </IonSegmentButton>
-            ))}
-          </IonSegment>
-        </div>
-  
         <IonList inset>
           <IonItem>
             <IonToggle checked={game.favorite} onIonChange={(e) => actions.updateGame(game.id, {'favorite': e.detail.checked})}>

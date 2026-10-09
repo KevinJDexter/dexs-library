@@ -14,14 +14,14 @@ import FilterModal from "../components/FilterModal";
 const DiceRoller = lazy(() => import('../components/DiceRoller'));
 
 export default function PickPage() {
-  const { data } = useLibrary();
+  const { data, stats } = useLibrary();
   const [filters, setFilters] = useState<GameFilters>({...DEFAULT_FILTERS, scope: 'owned'});
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [picked, setPicked] = useState<Game | null>(null);
   const [rolling, setRolling] = useState(false);
   const dice = useRef<DiceHandle>(null)
 
-  const candidates = useMemo(() => applyFilters(data.games, filters, data.lists), [data.games, data.lists, filters]);
+  const candidates = useMemo(() => applyFilters(data.games, filters, data.lists, stats), [data.games, data.lists, filters, stats]);
   const partner = data.people[1];
 
   async function roll() {
@@ -67,7 +67,6 @@ export default function PickPage() {
               setFilters({
                 ...DEFAULT_FILTERS,
                 ownerId: partner.id,
-                statuses: ['not-played'],
                 playerCount: 2,
                 playerFit: 'recommended',
                 scope: 'owned',

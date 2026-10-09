@@ -1,21 +1,11 @@
+import { GameFilters } from "../logic/filters";
+
 export type PersonId = string;
 
 export interface Person {
   id: PersonId;
   name: string;
 };
-
-export type PlayStatus = "not-played" | "tried" | "played";
-
-export const PLAY_STATUSES: readonly PlayStatus[] = ["not-played", "tried", "played"];
-
-export const PLAY_STATUS_LABELS: Record<PlayStatus, string> = {
-  "not-played": "Not Played",
-  tried: "Tried",
-  played: "Played"
-};
-
-export type Ownership = { kind: "owned", ownerId: PersonId } | { kind: "wishlist" };
 
 export interface BggRef {
   bggId: number;
@@ -35,6 +25,8 @@ export interface BggExtras {
   reimplementedBy?: BggRef[];
 }
 
+export type Ownership = { kind: "owned", ownerId: PersonId } | { kind: "wishlist" };
+
 export interface Game extends BggExtras {
   id: string;
   bggId?: number;
@@ -50,7 +42,7 @@ export interface Game extends BggExtras {
   categories?: string[];
   mechanics?: string[];
   ownership: Ownership;
-  status: PlayStatus;
+  priorPlays?: number;
   favorite: boolean;
   addedAt?: string;
   syncedAt?: string;
@@ -62,9 +54,35 @@ export interface GameList {
   gameIds: string[];
 };
 
+export interface Play {
+  id: string;
+  gameId: string;
+  date: string;
+}
+
+export interface ExpansionState {
+  name: string;
+  state: 'owned' | 'wanted';
+  ownerId?: PersonId;
+}
+
+export interface FilterPreset {
+  id: string;
+  name: string;
+  filters: GameFilters;
+}
+
+export interface LibrarySettings {
+  hiddenFamilyPrefixes: string[];
+  filterPresets: FilterPreset[];
+}
+
 export interface LibraryData {
-  version: 1;
+  version: 2;
   people: Person[];
   games: Game[];
   lists: GameList[];
+  plays: Play[];
+  expansions: Record<string, ExpansionState>;
+  settings: LibrarySettings;
 }

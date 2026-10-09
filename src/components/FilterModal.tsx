@@ -1,6 +1,7 @@
 import { IonButton, IonButtons, IonCheckbox, IonContent, IonHeader, IonItem, IonLabel, IonList, IonListHeader, IonModal, IonRange, IonSelect, IonSelectOption, IonTitle, IonToggle, IonToolbar } from "@ionic/react";
-import { GameList, Person, PLAY_STATUS_LABELS, PLAY_STATUSES, PlayStatus } from "../domain/types";
-import { COMPLEXITY_MAX, COMPLEXITY_MIN, DEFAULT_FILTERS, GameFilters } from "../logic/filters";
+import { GameList, Person } from "../domain/types";
+import { COMPLEXITY_MAX, COMPLEXITY_MIN, DEFAULT_FILTERS, GameFilters, PlayedFilter } from "../logic/filters";
+import { STALE_MONTHS } from "../logic/plays";
 
 interface FilterModalProps {
   isOpen: boolean;
@@ -128,16 +129,14 @@ export default function FilterModal({
             </IonToggle>
           </IonItem>
           
-          <IonListHeader>
-            <IonLabel>Status</IonLabel>
-          </IonListHeader>
-          {PLAY_STATUSES.map((status: PlayStatus) => (
-            <IonItem key={status}>
-              <IonCheckbox checked={filters.statuses.includes(status)} onIonChange={() => set('statuses', toggleIn(filters.statuses, status))}>
-                {PLAY_STATUS_LABELS[status]}
-              </IonCheckbox>
-            </IonItem>
-          ))}
+          <IonItem>
+            <IonSelect label="Played" value={filters.played} onIonChange={(e) => set('played', e.detail.value as PlayedFilter)}>
+              <IonSelectOption value="any">Any</IonSelectOption>
+              <IonSelectOption value="never">Never played</IonSelectOption>
+              <IonSelectOption value="played">Played at least once</IonSelectOption>
+              <IonSelectOption value="stale">Not played in {STALE_MONTHS}+ months</IonSelectOption>
+            </IonSelect>
+          </IonItem>
 
           {categories.length > 0 && (
             <IonListHeader>

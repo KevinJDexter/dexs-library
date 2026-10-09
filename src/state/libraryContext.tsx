@@ -3,6 +3,7 @@ import { Game, Person, PersonId } from "../domain/types";
 import { emptyLibrary, loadLibrary, saveLibrary } from "../storage/LibraryRepository";
 import { BggUpdate, libraryReducer } from "./libraryReducer";
 import { newId } from "../domain/id";
+import { playStats } from "../logic/plays";
 
 type NewGame = Omit<Game, "id" >
 
@@ -10,6 +11,8 @@ function useLibraryStore() {
   const [data, dispatch] = useReducer(libraryReducer, undefined, emptyLibrary);
   const [ready, setReady] = useState(false);
   const skipNextSave = useRef(true);
+
+  const stats = useMemo(() => playStats(data.games, data.plays), [data.games, data.plays]);
 
   useEffect(() => {
     let cancelled = false;
@@ -77,7 +80,8 @@ function useLibraryStore() {
     []
   )
 
-  return {data, ready, actions};
+
+  return {data, ready, actions, stats};
 }
 
 type LibraryContextValue = ReturnType<typeof useLibraryStore>;

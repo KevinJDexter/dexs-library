@@ -79,7 +79,6 @@ export default function AddGameModal({ isOpen, onClose, defaultTarget = WISHLIST
       actions.addGame({
         ...details,
         ownership,
-        status: 'not-played',
         favorite: false,
         addedAt: new Date().toISOString(),
         syncedAt: new Date().toISOString(),

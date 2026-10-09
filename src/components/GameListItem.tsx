@@ -1,18 +1,16 @@
 import { IonBadge, IonIcon, IonItem, IonItemOption, IonItemOptions, IonItemSliding, IonLabel, IonNote } from "@ionic/react";
-import { Game, PLAY_STATUS_LABELS } from "../domain/types";
+import { Game } from "../domain/types";
 import { useLibrary } from "../state/libraryContext";
 import GameThumb from "./GameThumb";
 import { heart, heartOutline } from "ionicons/icons";
 import { gameSummary } from "../logic/format";
-
-const STATUS_COLOR = {
-  'not-played': 'medium',
-  'tried': 'warning',
-  'played': 'success'
-}
+import { isStale } from "../logic/plays";
 
 export default function GameListItem({ game, href, showOwner = false}: { game: Game, href: string, showOwner?: boolean }) {
-  const { data, actions } = useLibrary();
+  const { data, stats, actions } = useLibrary();
+  const gameStats = stats.get(game.id);
+  const count = gameStats?.count ?? 0;
+  const badgeColor = count === 0 ? 'medium' : isStale(gameStats) ? 'warning' : 'success';
   const ownerId = game.ownership.kind === 'owned' ? game.ownership.ownerId : undefined;
   const owner = data.people.find(person => person.id === ownerId)?.name;
 
@@ -31,8 +29,8 @@ export default function GameListItem({ game, href, showOwner = false}: { game: G
           {showOwner && owner && <p>{owner}</p>}
         </IonLabel>
         <IonNote slot="end">
-          <IonBadge color={STATUS_COLOR[game.status]}>
-            {PLAY_STATUS_LABELS[game.status]}
+          <IonBadge color={badgeColor}>
+            {count === 0 ? 'New' : `${count} ${count === 1 ? 'play' : 'plays'}`}
           </IonBadge>
         </IonNote>
       </IonItem>
