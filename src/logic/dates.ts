@@ -22,3 +22,8 @@ export function describeAgo(day: string, from: string = today()): string {
   if (days < 730) return `${Math.floor(days / 30.44)} months ago`;
   return `${Math.floor(days / 365.25)} years ago`
 }
+
+export function formatDate(day: string): string {
+  const [y, m, d] = day.split('-').map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString(undefined, { dateStyle: 'medium' });
+}

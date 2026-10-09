@@ -4,6 +4,7 @@ import { emptyLibrary, loadLibrary, saveLibrary } from "../storage/LibraryReposi
 import { BggUpdate, libraryReducer } from "./libraryReducer";
 import { newId } from "../domain/id";
 import { playStats } from "../logic/plays";
+import { today } from "../logic/dates";
 
 type NewGame = Omit<Game, "id" >
 
@@ -75,11 +76,18 @@ function useLibraryStore() {
       ),
       updateBggDetails: (details: BggUpdate[]) => (
         dispatch({ type: 'updateBggDetails', details, syncedAt: new Date().toISOString() })
-      )
+      ),
+      logPlay: (gameId: string, date: string = today()) => {
+        const play = { id: newId(), gameId, date };
+        dispatch({ type: 'logPlay', play });
+        return play;
+      },
+      removePlay: (id: string) => (
+        dispatch({ type: 'removePlay', id })
+      ),
     }),
     []
   )
-
 
   return {data, ready, actions, stats};
 }

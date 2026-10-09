@@ -6,6 +6,7 @@ import GameHeader from "../components/GameHeader";
 import { useState } from "react";
 import { bggClient } from "../services/bggXmlClient";
 import { refreshOutline } from "ionicons/icons";
+import PlayHistory from "../components/PlayHistory";
 
 export default function GameDetailPage({backHref}: {backHref: string}) {
   const { gameId } = useParams<{ gameId: string }>();
@@ -94,6 +95,8 @@ export default function GameDetailPage({backHref}: {backHref: string}) {
           <GameHeader game={game}/>
           {game.syncedAt && <p style={{ margin: '2px 0 0', fontSize: 12, opacity: 0.6 }}>BGG data from {new Date(game.syncedAt).toLocaleDateString()}</p>}
         </div>
+
+        <PlayHistory game={game} />
 
         <IonList inset>
           <IonItem>

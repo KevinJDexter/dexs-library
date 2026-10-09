@@ -14,11 +14,12 @@ import FilterModal from "../components/FilterModal";
 const DiceRoller = lazy(() => import('../components/DiceRoller'));
 
 export default function PickPage() {
-  const { data, stats } = useLibrary();
+  const { data, stats, actions } = useLibrary();
   const [filters, setFilters] = useState<GameFilters>({...DEFAULT_FILTERS, scope: 'owned'});
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [picked, setPicked] = useState<Game | null>(null);
   const [rolling, setRolling] = useState(false);
+  const [loggedId, setLoggedId] = useState<string | null>(null);
   const dice = useRef<DiceHandle>(null)
 
   const candidates = useMemo(() => applyFilters(data.games, filters, data.lists, stats), [data.games, data.lists, filters, stats]);
@@ -34,6 +35,7 @@ export default function PickPage() {
     await dice.current.roll();
 
     setPicked(choice);
+    setLoggedId(null);
     setRolling(false);
 
     await Haptics.notification({ type: NotificationType.Success }).catch(() => {});
@@ -107,6 +109,13 @@ export default function PickPage() {
               <p>{gameSummary(picked)}</p>
               <IonButton fill="clear" routerLink={`/tabs/pick/games/${picked.id}`}>
                 Details
+              </IonButton>
+              <IonButton
+                fill="clear"
+                disabled={loggedId === picked.id}
+                onClick={() => { actions.logPlay(picked.id); setLoggedId(picked.id) }}
+              >
+                {loggedId === picked.id ? 'Logged' : 'We played it'}
               </IonButton>
               <IonButton fill="clear" onClick={() => share(picked)}>
                 <IonIcon slot="start" icon={shareOutline} />

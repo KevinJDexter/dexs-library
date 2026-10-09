@@ -1,4 +1,4 @@
-import { Game, GameList, LibraryData, Person, PersonId } from "../domain/types";
+import { Game, GameList, LibraryData, Person, PersonId, Play } from "../domain/types";
 
 export type LibraryAction =
   | { type: "hydrate"; data: LibraryData}
@@ -12,7 +12,9 @@ export type LibraryAction =
   | { type: "renameList"; id: string, name: string}
   | { type: "deleteList"; id: string}
   | { type: "setGameLists"; gameId: string; listIds: string[]}
-  | { type: "updateBggDetails"; details: BggUpdate[]; syncedAt: string };
+  | { type: "updateBggDetails"; details: BggUpdate[]; syncedAt: string }
+  | { type: "logPlay"; play: Play }
+  | { type: "removePlay"; id: string };
 
 export type BggUpdate = Partial<Omit<Game, "id">> & { bggId: number };
 
@@ -31,7 +33,8 @@ export function libraryReducer (state: LibraryData, action: LibraryAction): Libr
       return {
         ...state,
         games: state.games.filter(game => game.id !== action.id),
-        lists: state.lists.map(list => ({...list, gameIds: list.gameIds.filter(gameId => gameId !== action.id)}))
+        lists: state.lists.map(list => ({...list, gameIds: list.gameIds.filter(gameId => gameId !== action.id)})),
+        plays: state.plays.filter(play => play.gameId !== action.id),
       };
     case "addPerson":
       return {
@@ -53,7 +56,8 @@ export function libraryReducer (state: LibraryData, action: LibraryAction): Libr
           ...state,
           people: state.people.filter(person => person.id !== action.id),
           games: remainingGames,
-          lists: state.lists.map(list => ({ ...list, gameIds: list.gameIds.filter(id => !ownedGameIds.includes(id))}))
+          lists: state.lists.map(list => ({ ...list, gameIds: list.gameIds.filter(id => !ownedGameIds.includes(id))})),
+          plays: state.plays.filter(play => !ownedGameIds.includes(play.gameId)),
         }
       }
     case "createList":
@@ -98,5 +102,15 @@ export function libraryReducer (state: LibraryData, action: LibraryAction): Libr
         }),
       };
     };
+    case "logPlay":
+      return {
+        ...state,
+        plays: [...state.plays, action.play]
+      }
+    case "removePlay":
+      return {
+        ...state,
+        plays: state.plays.filter(play => play.id !== action.id)
+      }
   }
 }
