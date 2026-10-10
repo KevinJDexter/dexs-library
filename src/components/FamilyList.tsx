@@ -1,7 +1,8 @@
-import { IonChip, IonItem, IonLabel, IonList, IonListHeader } from "@ionic/react";
+import { IonChip, IonItem, IonLabel, } from "@ionic/react";
 import { Game } from "../domain/types";
 import { visibleFamilies } from "../logic/families";
 import { useLibrary } from "../state/libraryContext";
+import Section from "./Section";
 
 export default function FamilyList({ game }: { game: Game }) {
   const { data } = useLibrary();
@@ -9,10 +10,7 @@ export default function FamilyList({ game }: { game: Game }) {
   if (groups.length === 0) return null;
 
   return (
-    <IonList inset>
-      <IonListHeader>
-        <IonLabel>Families</IonLabel>
-      </IonListHeader>
+    <Section id="families" title="Families" summary={`${groups.length} ${groups.length === 1 ? 'group' : 'groups'}`}>
       {groups.map(([prefix, labels]) => (
         <IonItem key={prefix}>
           <IonLabel>
@@ -27,6 +25,6 @@ export default function FamilyList({ game }: { game: Game }) {
           </IonLabel>
         </IonItem>
       ))}
-    </IonList>
+    </Section>
   )
 }

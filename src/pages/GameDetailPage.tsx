@@ -1,6 +1,6 @@
 import { useLocation, useParams } from "react-router";
 import { useLibrary } from "../state/libraryContext";
-import { IonBackButton, IonButton, IonButtons, IonCheckbox, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonListHeader, IonPage, IonSelect, IonSelectOption, IonSpinner, IonTitle, IonToggle, IonToolbar, useIonAlert, useIonRouter, useIonToast } from "@ionic/react";
+import { IonBackButton, IonButton, IonButtons, IonCheckbox, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonPage, IonSelect, IonSelectOption, IonSpinner, IonTitle, IonToggle, IonToolbar, useIonAlert, useIonRouter, useIonToast } from "@ionic/react";
 import { Ownership } from "../domain/types";
 import GameHeader from "../components/GameHeader";
 import { useState } from "react";
@@ -10,6 +10,7 @@ import PlayHistory from "../components/PlayHistory";
 import ExpansionChecklist from "../components/ExpansionChecklist";
 import RelatedGames from "../components/RelatedGames";
 import FamilyList from "../components/FamilyList";
+import Section from "../components/Section";
 
 export default function GameDetailPage({backHref}: {backHref: string}) {
   const { gameId } = useParams<{ gameId: string }>();
@@ -130,10 +131,7 @@ export default function GameDetailPage({backHref}: {backHref: string}) {
 
         <PlayHistory game={game} />
 
-        <IonList inset>
-          <IonListHeader>
-            <IonLabel>Lists</IonLabel>
-          </IonListHeader>
+        <Section id="lists" title="Lists" summary={`In ${listIdsForGame.length} of ${data.lists.length}`}>
           {data.lists.length === 0 && (
             <IonItem>
               <IonLabel color="medium">Create Lists in the Lists tab</IonLabel>
@@ -148,7 +146,7 @@ export default function GameDetailPage({backHref}: {backHref: string}) {
               </IonCheckbox>
             </IonItem>
           ))}
-        </IonList>
+        </Section>
 
         <ExpansionChecklist game={game} />
 

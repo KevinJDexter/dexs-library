@@ -74,6 +74,7 @@ export interface FilterPreset {
 export interface LibrarySettings {
   hiddenFamilyPrefixes: string[];
   filterPresets: FilterPreset[];
+  collapsedSections?: string[];
 }
 
 export interface LibraryData {

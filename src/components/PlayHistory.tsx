@@ -1,8 +1,9 @@
-import { IonButton, IonInput, IonItem, IonItemOption, IonItemOptions, IonItemSliding, IonLabel, IonList, IonListHeader, IonNote, useIonAlert } from "@ionic/react";
+import { IonButton, IonInput, IonItem, IonItemOption, IonItemOptions, IonItemSliding, IonLabel, IonNote, useIonAlert } from "@ionic/react";
 import { Game } from "../domain/types";
 import { useLibrary } from "../state/libraryContext";
 import { describeAgo, formatDate, today } from "../logic/dates";
 import { useState } from "react";
+import Section from "./Section";
 
 const SHOWN = 5;
 
@@ -30,10 +31,7 @@ export default function PlayHistory({ game }: {game: Game}) {
   }
 
   return (
-    <IonList inset>
-      <IonListHeader>
-        <IonLabel>Plays</IonLabel>
-      </IonListHeader>
+    <Section id="plays" title="Plays" summary={count === 0 ? 'Never played' : `${count} ${count === 1 ? 'play' : 'plays'}`}>
       <IonItem lines="none">
         <IonLabel>
           <h2>{count === 0 ? "Never played" : `Played ${count} ${count === 1 ? "time" : "times"}`}</h2>
@@ -73,6 +71,6 @@ export default function PlayHistory({ game }: {game: Game}) {
           <IonLabel color="primary">{showAll ? 'Show fewer' : `Show all ${plays.length} plays`}</IonLabel>
         </IonItem>
       )}
-    </IonList>
+    </Section>
   )
 }

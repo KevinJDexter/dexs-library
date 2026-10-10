@@ -5,6 +5,7 @@ import { Person } from "../domain/types";
 import { trashOutline } from "ionicons/icons";
 import { bggClient } from "../services/bggXmlClient";
 import { familyPrefixes } from "../logic/families";
+import Section from "../components/Section";
 
 export default function SettingsPage() {
   const { data, actions } = useLibrary();
@@ -99,10 +100,7 @@ export default function SettingsPage() {
           </IonItem>
         </IonList>
         {prefixes.length > 0 && (
-          <IonList inset>
-            <IonListHeader>
-              <IonLabel>Family groups to show</IonLabel>
-            </IonListHeader>
+          <Section id="settings-family-groups" title="Family groups to show" summary={`${data.settings.hiddenFamilyPrefixes.length} hidden`}>
             {prefixes.map(({ prefix, gameCount }) => (
               <IonItem key={prefix}>
                 <IonToggle
@@ -113,7 +111,7 @@ export default function SettingsPage() {
                 </IonToggle>
               </IonItem>
             ))}
-          </IonList>
+          </Section>
         )}
         <IonList inset>
           <IonListHeader>

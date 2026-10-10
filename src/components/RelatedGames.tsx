@@ -1,6 +1,7 @@
-import { IonItem, IonLabel, IonList, IonListHeader, IonNote } from "@ionic/react";
+import { IonItem, IonLabel, IonNote } from "@ionic/react";
 import { BggRef, Game } from "../domain/types";
 import { useLibrary } from "../state/libraryContext";
+import Section from "./Section";
 
 interface RelatedGamesProps {
   game: Game;
@@ -9,20 +10,17 @@ interface RelatedGamesProps {
 
 export default function RelatedGames({ game, hrefFor }: RelatedGamesProps) {
   const { data } = useLibrary();
-  const sections: [string, BggRef[] | undefined][] = [
-    ['Expansion for', game.expansionOf],
-    ['Combines with', game.integrations],
-    ['New version of', game.reimplements],
-    ['Newer versions', game.reimplementedBy],
+  const sections: [string, string, BggRef[] | undefined][] = [
+    ['expansion-of', 'Expansion for', game.expansionOf],
+    ['integrations', 'Combines with', game.integrations],
+    ['reimplements', 'New version of', game.reimplements],
+    ['reimplemented-by', 'Newer versions', game.reimplementedBy],
   ];
 
   return (
     <>
-      {sections.filter(([, refs]) => refs?.length).map(([title, refs]) => (
-        <IonList inset key={title}>
-          <IonListHeader>
-            <IonLabel>{title}</IonLabel>
-          </IonListHeader>
+      {sections.filter(([, , refs]) => refs?.length).map(([id, title, refs]) => (
+        <Section key={id} id={id} title={title} summary={`${refs!.length}`}>
           {refs!.map(ref => {
             const inLibrary = data.games.find(other => other.bggId === ref.bggId);
             return inLibrary ? (
@@ -37,7 +35,7 @@ export default function RelatedGames({ game, hrefFor }: RelatedGamesProps) {
               </IonItem>
             );
           })}
-        </IonList>
+        </Section>
       ))}
     </>
   );

@@ -100,6 +100,9 @@ function useLibraryStore() {
       setFamilyPrefixHidden: (prefix: string, hidden: boolean) => (
         dispatch({ type: "setFamilyPrefixHidden", prefix, hidden })
       ),
+      toggleCollapsedSection: (section: string) => {
+        dispatch({ type: "toggleCollapseSection", section })
+      }
     }),
     []
   )
