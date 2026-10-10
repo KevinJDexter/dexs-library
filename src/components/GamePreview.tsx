@@ -11,7 +11,7 @@ interface GamePreviewProps {
   alreadyAdded: boolean;
   adding: boolean;
   addOptions: { label: string; target: AddTarget }[];
-  onAdd: (details: BggGameDetails, target: AddTarget) => void;
+  onAdd: (details: BggGameDetails, target: AddTarget, asGame?: boolean) => void;
   onRemove?: () => void;
 }
 
@@ -71,6 +71,16 @@ export default function GamePreview({ result, client, alreadyAdded, adding, addO
                   {adding ? 'Adding...' : option.label}
                 </IonButton>
               ))}
+              {!alreadyAdded && details.isExpansion && (
+                <IonButton
+                  expand="block"
+                  fill="clear"
+                  disabled={adding}
+                  onClick={() => onAdd(details, addOptions[0].target, true)}
+                >
+                  Add as a game instead
+                </IonButton>
+              )}
             </div>
             <IonButton expand="block" fill="clear" href={`https://boardgamegeek.com/boardgame/${details.bggId}`} target="_blank">
               View on BGG

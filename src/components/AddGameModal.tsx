@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { BggClient, BggSearchResult } from "../services/bgg";
 import { useLibrary } from "../state/libraryContext";
-import { IonButton, IonButtons, IonCheckbox, IonContent, IonHeader, IonItem, IonLabel, IonList, IonModal, IonSearchbar, IonSpinner, IonText, IonTitle, IonToolbar, useIonToast } from "@ionic/react";
+import { IonButton, IonButtons, IonCheckbox, IonContent, IonHeader, IonItem, IonLabel, IonList, IonModal, IonSearchbar, IonSpinner, IonText, IonTitle, IonToolbar } from "@ionic/react";
 import { bggClient } from "../services/bggXmlClient";
 import { rankResults } from "../logic/searchRank";
 import GamePreview from "./GamePreview";
@@ -18,8 +18,8 @@ interface AddGameModalProps {
 const PAGE_SIZE = 25;
 
 export default function AddGameModal({ isOpen, onClose, defaultTarget = WISHLIST, client = bggClient }: AddGameModalProps) {
-  const { data, actions } = useLibrary();
-  const { adding, addGame, targetName } = useAddGame(client);
+  const { data } = useLibrary();
+  const { adding, addGame, isAdded, remove } = useAddGame(client);
   const [query, setQuery] = useState('');
   const [searchText, setSearchText] = useState('');
   const [results, setResults] = useState<BggSearchResult[]>([]);
@@ -28,7 +28,6 @@ export default function AddGameModal({ isOpen, onClose, defaultTarget = WISHLIST
   const [exact, setExact] = useState(false);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [previewing, setPreviewing] = useState<BggSearchResult | null>(null);
-  const [presentToast, dismissToast] = useIonToast();
 
   const personName = useMemo(() => (
     target === WISHLIST ? 'Wishlist' : data.people.find(person => person.id === target)?.name
@@ -59,28 +58,7 @@ export default function AddGameModal({ isOpen, onClose, defaultTarget = WISHLIST
     setTarget(defaultTarget)
   }, [defaultTarget])
 
-  const alreadyThere = (bggId: number) => (
-    data.games.some((game) => (
-      game.bggId === bggId
-        && (target === WISHLIST
-          ? game.ownership.kind === WISHLIST
-          : game.ownership.kind === 'owned' && game.ownership.ownerId === target
-        )
-    ))
-  )
-
-  async function removeGame(game: BggSearchResult) {
-    const gameId = data.games.find(g => g.bggId === game.bggId && (
-      target === WISHLIST
-        ? g.ownership.kind === WISHLIST
-        : g.ownership.kind === 'owned' && g.ownership.ownerId === target
-    ))?.id;
-    if (gameId) {
-      actions.removeGame(gameId)
-      await dismissToast();
-      presentToast(`${game.name} removed from ${targetName(target)}`, 1000);
-    }
-  }
+  const alreadyThere = (bggId: number) => (isAdded(bggId, target))
 
   const visibleResults = results.slice(0, visibleCount);
   const remaining = results.length - visibleResults.length
@@ -123,14 +101,14 @@ export default function AddGameModal({ isOpen, onClose, defaultTarget = WISHLIST
               <IonItem key={r.bggId} button detail={false} onClick={() => setPreviewing(r)}>
                 <IonLabel style={{ opacity: alreadyThere(r.bggId) ? 0.3 : 1}}>
                   <h3>{r.name}</h3>
-                  <p>{r.yearPublished}</p>
+                  <p>{r.isExpansion && 'Expansion · '}{r.yearPublished}</p>
                 </IonLabel>
                 {!alreadyThere(r.bggId) ? (
                   <IonButton size="small" slot="end" disabled={adding.includes(r.bggId)} onClick={(e) => { e.stopPropagation(); addGame(r, target)}} >
                     Add
                   </IonButton>
                 ) : (
-                  <IonButton size="small" slot="end" onClick={(e) => { e.stopPropagation(); removeGame(r)}}>
+                  <IonButton size="small" slot="end" onClick={(e) => { e.stopPropagation(); remove(r, target)}}>
                     Remove
                   </IonButton>
                 )}
@@ -157,8 +135,8 @@ export default function AddGameModal({ isOpen, onClose, defaultTarget = WISHLIST
             alreadyAdded={alreadyThere(previewing.bggId)}
             adding={adding.includes(previewing.bggId)}
             addOptions={[{ label: 'Add', target }]}
-            onAdd={(details, to) => addGame(previewing, to, details)}
-            onRemove={() => removeGame(previewing)}
+            onAdd={(details, to, asGame) => addGame(previewing, to, details, asGame)}
+            onRemove={() => remove(previewing, target)}
           />
         )}
       </IonModal>

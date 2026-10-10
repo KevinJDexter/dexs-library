@@ -9,7 +9,7 @@ export const mockBggClient: BggClient = {
     const q = query.trim().toLowerCase();
     if (!q) return [];
     return MOCK_CATALOG.filter((game) => options.exact ? game.name.toLowerCase() === q : game.name.toLowerCase().includes(q))
-      .map(({ bggId, name, yearPublished }) => ({ bggId, name, yearPublished })) 
+      .map(({ bggId, name, yearPublished, isExpansion }) => ({ bggId, name, yearPublished, isExpansion })) 
   },
 
   async getDetails(bggId) {

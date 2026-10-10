@@ -4,6 +4,7 @@ export interface BggSearchResult {
   bggId: number;
   name: string;
   yearPublished?: number;
+  isExpansion?: boolean;
 };
 
 export interface BggSearchOptions {

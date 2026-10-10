@@ -24,11 +24,23 @@ function parsePlayerPoll(item: Element) {
 }
 
 export function parseSearch(doc: Document): BggSearchResult[] {
-  return [...doc.querySelectorAll('item')].map(item => ({
-    bggId: Number(item.getAttribute('id')),
-    name: attr(item.querySelector('name')) ?? 'unknown',
-    yearPublished: num(item.querySelector('yearpublished'))
-  }))
+  const byId = new Map<number, BggSearchResult>();
+  for (const item of doc.querySelectorAll('item')) {
+    const bggId = Number(item.getAttribute('id'));
+    const isExpansion = item.getAttribute('type') === 'boardgameexpansion';
+    const seen = byId.get(bggId);
+    if (seen) {
+      seen.isExpansion = seen.isExpansion || isExpansion
+      continue;
+    }
+    byId.set(bggId, {
+      bggId,
+      name: attr(item.querySelector('name')) ?? 'Unknown',
+      yearPublished: num(item.querySelector('yearpublished')),
+      isExpansion
+    })
+  }
+  return [...byId.values()];
 }
 
 export function parseThing(item: Element): BggGameDetails {

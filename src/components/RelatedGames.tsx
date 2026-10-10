@@ -28,8 +28,8 @@ export default function RelatedGames({ game, hrefFor }: RelatedGamesProps) {
   const targets: AddTarget[] = game.ownership.kind === 'owned' ? [game.ownership.ownerId, WISHLIST] : [WISHLIST];
   const addOptions = targets.map(target => ({ label: `Add to ${targetName(target)}`, target }));
 
-  async function add(ref: BggRef, details: BggGameDetails, target: AddTarget) {
-    if (await addGame(ref, target, details)) setPreviewing(null);
+  async function add(ref: BggRef, details: BggGameDetails, target: AddTarget, asGame?: boolean) {
+    if (await addGame(ref, target, details, asGame)) setPreviewing(null);
   }
 
   return (
@@ -61,7 +61,7 @@ export default function RelatedGames({ game, hrefFor }: RelatedGamesProps) {
             alreadyAdded={data.games.some(other => other.bggId === previewing.bggId)}
             adding={adding.includes(previewing.bggId)}
             addOptions={addOptions}
-            onAdd={(details, target) => add(previewing, details, target)}
+            onAdd={(details, target, asGame) => add(previewing, details, target, asGame)}
           />
         )}
       </IonModal>
