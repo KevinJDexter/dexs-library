@@ -7,6 +7,10 @@ export function splitFamily(name: string): { prefix: string, label: string } {
   return at < 0 ? { prefix: NO_PREFIX, label: name } : { prefix: name.slice(0, at), label: name.slice(at + 2)};
 }
 
+export function familyName(prefix: string, label: string): string {
+  return prefix === NO_PREFIX ? label : `${prefix}: ${label}`
+}
+
 export function familyPrefixes(games: readonly Game[]): { prefix: string, gameCount: number }[] {
   const counts = new Map<string, number>()
   for (const game of games) {

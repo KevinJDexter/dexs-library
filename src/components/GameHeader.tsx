@@ -3,9 +3,10 @@ import { IonChip } from "@ionic/react";
 import { Game } from "../domain/types";
 import GameThumb from "./GameThumb";
 import { complexityLine, listWithMore, playersLine, timeLine } from "../logic/format";
+import { Facet } from "../logic/matching";
 
 export type HeaderFields = Pick<Game,
-  'name' | 'thumbnail' | 'yearPublished' | 'designers' | 'publishers' | 'categories' |
+  'name' | 'thumbnail' | 'yearPublished' | 'designers' | 'publishers' | 'categories' | 'mechanics' |
   'minPlayers' | 'maxPlayers' | 'bestPlayers' | 'recommendedPlayers' | 'playTime' | 'setupTime' | 'complexity'
 >;
 
@@ -13,11 +14,12 @@ interface GameHeaderProps {
   game: HeaderFields;
   thumbSize?: number;
   children?: ReactNode;
+  onSelect?: (facet: Facet) => void;
 }
 
 const line = { margin: '2px 0 0' };
 
-export default function GameHeader({ game, thumbSize = 72, children }: GameHeaderProps) {
+export default function GameHeader({ game, thumbSize = 72, children, onSelect }: GameHeaderProps) {
   const time = timeLine(game);
   const complexity = complexityLine(game);
   return (
@@ -39,9 +41,24 @@ export default function GameHeader({ game, thumbSize = 72, children }: GameHeade
         {game.publishers?.length ? <p style={line}>Published by {listWithMore(game.publishers)}</p> : null}
         {children}
       </div>
+
       {game.categories?.length ? (
         <div style={{ marginTop: 8 }}>
-          {game.categories.map(category => <IonChip key={category} outline>{category}</IonChip>)}
+          {game.categories.map(category => (
+            <IonChip key={category} outline onClick={onSelect && (() => onSelect({ kind: 'category', value: category }))}>
+              {category}
+            </IonChip>
+          ))}
+        </div>
+      ) : null}
+
+      {game.mechanics?.length ? (
+        <div style={{ marginTop: 8 }}>
+          {game.mechanics.map(mechanic => (
+            <IonChip key={mechanic} outline onClick={onSelect && (() => onSelect({ kind: 'mechanic', value: mechanic }))}>
+              {mechanic}
+            </IonChip>
+          ))}
         </div>
       ) : null}
     </>

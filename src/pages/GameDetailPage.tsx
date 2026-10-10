@@ -11,14 +11,17 @@ import ExpansionChecklist from "../components/ExpansionChecklist";
 import RelatedGames from "../components/RelatedGames";
 import FamilyList from "../components/FamilyList";
 import Section from "../components/Section";
+import { collectionFor, Facet } from "../logic/matching";
+import MatchingGames from "../components/MatchingGames";
 
 export default function GameDetailPage({backHref}: {backHref: string}) {
-  const { gameId } = useParams<{ gameId: string }>();
+  const { gameId, listId } = useParams<{ gameId: string, listId?: string }>();
   const { data, actions } = useLibrary();
   const [ presentAlert ] = useIonAlert();
   const router = useIonRouter();
   const [ presentToast ] = useIonToast();
   const [ refreshing, setRefreshing ] = useState(false);
+  const [ facet, setFacet ] = useState<Facet | null>(null);
   const location = useLocation();
 
   const game = data.games.find(g => g.id === gameId);
@@ -63,6 +66,7 @@ export default function GameDetailPage({backHref}: {backHref: string}) {
     actions.updateGame(game.id, { ownership });
   }
   const listIdsForGame = data.lists.filter(list => list.gameIds.includes(game.id)).map(list => list.id);
+  const hrefFor = (id: string) => location.pathname.replace(/[^/]+$/, id);
 
   const confirmDelete = () => {
     presentAlert({
@@ -97,7 +101,7 @@ export default function GameDetailPage({backHref}: {backHref: string}) {
       </IonHeader>
       <IonContent>
         <div className="ion-padding">
-          <GameHeader game={game}/>
+          <GameHeader game={game} onSelect={setFacet}/>
           {game.syncedAt && <p style={{ margin: '2px 0 0', fontSize: 12, opacity: 0.6 }}>BGG data from {new Date(game.syncedAt).toLocaleDateString()}</p>}
         </div>
 
@@ -150,9 +154,9 @@ export default function GameDetailPage({backHref}: {backHref: string}) {
 
         <ExpansionChecklist game={game} />
 
-        <RelatedGames game={game} hrefFor={(id) => location.pathname.replace(/[^/]+$/, id)} />
+        <RelatedGames game={game} hrefFor={hrefFor} />
 
-        <FamilyList game={game} />
+        <FamilyList game={game} onSelect={setFacet} />
 
         <div className="ion-padding">
           <IonButton expand="block" color="danger" fill="outline" onClick={confirmDelete}>
@@ -160,6 +164,14 @@ export default function GameDetailPage({backHref}: {backHref: string}) {
           </IonButton>
         </div>
       </IonContent>
+
+      <MatchingGames
+        facet={facet}
+        collection={collectionFor(game, data, listId)}
+        currentGameId={game.id}
+        hrefFor={hrefFor}
+        onClose={() => setFacet(null)}
+      />
     </IonPage>
   )
 }

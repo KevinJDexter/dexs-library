@@ -1,10 +1,11 @@
 import { IonChip, IonItem, IonLabel, } from "@ionic/react";
 import { Game } from "../domain/types";
-import { visibleFamilies } from "../logic/families";
+import { familyName, visibleFamilies } from "../logic/families";
 import { useLibrary } from "../state/libraryContext";
 import Section from "./Section";
+import { Facet } from "../logic/matching";
 
-export default function FamilyList({ game }: { game: Game }) {
+export default function FamilyList({ game, onSelect }: { game: Game, onSelect?: (facet: Facet) => void }) {
   const { data } = useLibrary();
   const groups = visibleFamilies(game.families ?? [], data.settings.hiddenFamilyPrefixes);
   if (groups.length === 0) return null;
@@ -17,7 +18,12 @@ export default function FamilyList({ game }: { game: Game }) {
             <p>{prefix}</p>
             <div>
               {labels.map(label => (
-                <IonChip key={label} outline style={{marginInlineStart: 0}}>
+                <IonChip
+                  key={label}
+                  outline
+                  style={{marginInlineStart: 0}}
+                  onClick={onSelect && (() => onSelect({ kind: 'family', value: familyName(prefix, label)}))}
+                >
                   {label}
                 </IonChip>
               ))}
