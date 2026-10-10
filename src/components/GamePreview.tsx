@@ -3,17 +3,19 @@ import { IonButton, IonContent, IonHeader, IonNote, IonSpinner, IonText, IonTitl
 import { BggClient, BggGameDetails, BggSearchResult } from "../services/bgg";
 import GameHeader from "./GameHeader";
 import { listWithMore } from "../logic/format";
+import { AddTarget } from "../hooks/useAddGame";
 
 interface GamePreviewProps {
   result: BggSearchResult;
   client: BggClient;
   alreadyAdded: boolean;
   adding: boolean;
-  onAdd: (details: BggGameDetails) => void;
-  onRemove: () => void;
+  addOptions: { label: string; target: AddTarget }[];
+  onAdd: (details: BggGameDetails, target: AddTarget) => void;
+  onRemove?: () => void;
 }
 
-export default function GamePreview({ result, client, alreadyAdded, adding, onAdd, onRemove }: GamePreviewProps) {
+export default function GamePreview({ result, client, alreadyAdded, adding, addOptions, onAdd, onRemove }: GamePreviewProps) {
   const [details, setDetails] = useState<BggGameDetails | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -53,15 +55,23 @@ export default function GamePreview({ result, client, alreadyAdded, adding, onAd
               </IonNote>
             )}
 
-            <IonButton
-              expand="block"
-              className="ion-margin-top"
-              color={alreadyAdded ? 'medium' : 'primary'}
-              disabled={adding}
-              onClick={() => alreadyAdded ? onRemove() : onAdd(details)}
-            >
-              {alreadyAdded ? 'Remove' : adding ? 'Adding...' : 'Add'}
-            </IonButton>
+            <div className="ion-margin-top">
+              {alreadyAdded ? (
+                onRemove
+                  ? <IonButton expand="block" color="medium" onClick={onRemove}>Remove</IonButton>
+                  : <IonNote><p className="ion-text-center">In your library</p></IonNote>
+              ) : addOptions.map((option, i) => (
+                <IonButton
+                  key={option.target}
+                  expand="block"
+                  fill={i === 0 ? 'solid' : 'outline'}
+                  disabled={adding}
+                  onClick={() => onAdd(details, option.target)}
+                >
+                  {adding ? 'Adding...' : option.label}
+                </IonButton>
+              ))}
+            </div>
             <IonButton expand="block" fill="clear" href={`https://boardgamegeek.com/boardgame/${details.bggId}`} target="_blank">
               View on BGG
             </IonButton>
