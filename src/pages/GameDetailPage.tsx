@@ -13,6 +13,7 @@ import FamilyList from "../components/FamilyList";
 import Section from "../components/Section";
 import { collectionFor, Facet } from "../logic/matching";
 import MatchingGames from "../components/MatchingGames";
+import MechanicList from "../components/MechanicList";
 
 export default function GameDetailPage({backHref}: {backHref: string}) {
   const { gameId, listId } = useParams<{ gameId: string, listId?: string }>();
@@ -155,6 +156,8 @@ export default function GameDetailPage({backHref}: {backHref: string}) {
         <ExpansionChecklist game={game} />
 
         <RelatedGames game={game} hrefFor={hrefFor} />
+
+        <MechanicList game={game} onSelect={setFacet} />
 
         <FamilyList game={game} onSelect={setFacet} />
 

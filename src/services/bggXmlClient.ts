@@ -27,7 +27,7 @@ export function createXmlBggClient(token: string): BggClient {
   return {
     async search(query, options = {}): Promise<BggSearchResult[]> {
       if (!query.trim()) return [];
-      const params: Record<string, string> = { query, type: 'boardgame'};
+      const params: Record<string, string> = { query, type: 'boardgame,boardgameexpansion'};
       if (options.exact) params.exact = '1';
       const doc = await getXml('search', params, token);
       return parseSearch(doc);

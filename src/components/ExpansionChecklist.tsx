@@ -139,26 +139,31 @@ export default function ExpansionChecklist({ game }: {game: Game}) {
             {state === 'hidden' && <IonBadge slot="end" color="medium">Hidden</IonBadge>}
           </>
         )
-        if (selecting) return (
-          <IonItem key={expansion.bggId}>
-            <IonCheckbox
-              justify="start"
-              labelPlacement="end"
-              checked={selected.includes(expansion.bggId)}
-              onIonChange={(e) => toggleSelected(expansion.bggId, e.detail.checked)}
-            >
-              {expansion.name}
-            </IonCheckbox>
-            {badge}
-          </IonItem>
+
+        const label = (
+          <IonLabel className="ion-text-wrap">
+            <h3>{expansion.name}</h3>
+            {alsoFits.length > 0 && <p>Also fits {alsoFits.map(base => base.name).join(', ')}</p>}
+          </IonLabel>
         )
+        if (selecting) {
+          const isSelected = selected.includes(expansion.bggId);
+          return (
+            <IonItem key={expansion.bggId} button detail={false} onClick={() => toggleSelected(expansion.bggId, !isSelected)}>
+              <IonCheckbox
+                slot="start"
+                checked={isSelected}
+                style={{ pointerEvents: 'none' }}
+              />
+              {label}
+              {badge}
+            </IonItem>
+          )
+        }
 
         return (
           <IonItem key={expansion.bggId} button detail={false} onClick={() => choose(ownerId, expansion)}>
-            <IonLabel>
-              <h3>{expansion.name}</h3>
-              {alsoFits.length > 0 && <p>Also fits {alsoFits.map(fit => fit.name).join(', ')}</p>}
-            </IonLabel>
+            {label}
             {badge}
           </IonItem>
         )

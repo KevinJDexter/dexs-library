@@ -6,7 +6,7 @@ import { complexityLine, listWithMore, playersLine, timeLine } from "../logic/fo
 import { Facet } from "../logic/matching";
 
 export type HeaderFields = Pick<Game,
-  'name' | 'thumbnail' | 'yearPublished' | 'designers' | 'publishers' | 'categories' | 'mechanics' |
+  'name' | 'thumbnail' | 'yearPublished' | 'designers' | 'publishers' | 'categories' | 
   'minPlayers' | 'maxPlayers' | 'bestPlayers' | 'recommendedPlayers' | 'playTime' | 'setupTime' | 'complexity'
 >;
 
@@ -47,16 +47,6 @@ export default function GameHeader({ game, thumbSize = 72, children, onSelect }:
           {game.categories.map(category => (
             <IonChip key={category} outline onClick={onSelect && (() => onSelect({ kind: 'category', value: category }))}>
               {category}
-            </IonChip>
-          ))}
-        </div>
-      ) : null}
-
-      {game.mechanics?.length ? (
-        <div style={{ marginTop: 8 }}>
-          {game.mechanics.map(mechanic => (
-            <IonChip key={mechanic} outline onClick={onSelect && (() => onSelect({ kind: 'mechanic', value: mechanic }))}>
-              {mechanic}
             </IonChip>
           ))}
         </div>
