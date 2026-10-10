@@ -6,6 +6,7 @@ import { add, funnelOutline, settingsOutline } from "ionicons/icons";
 import GameListItem from "../components/GameListItem";
 import AddGameModal from "../components/AddGameModal";
 import FilterModal from "../components/FilterModal";
+import LooseExpansions from "../components/LooseExpansions";
 
 interface GameCollectionPageProps {
   title: string;
@@ -83,6 +84,8 @@ export default function GameCollectionPage({ title, scope, basePath }: GameColle
             <GameListItem key={game.id} game={game} href={`${basePath}/game/${game.id}`}/>
           ))}
         </IonList>
+
+        {scope === 'owned' && <LooseExpansions personId={libraryOwnerId} />}
 
         <IonFab slot="fixed" vertical="bottom" horizontal="end">
           <IonFabButton onClick={() => setAddGameModalOpen(true)}>

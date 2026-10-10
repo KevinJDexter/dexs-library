@@ -78,7 +78,7 @@ export interface LibrarySettings {
 }
 
 export interface LibraryData {
-  version: 3;
+  version: 4;
   people: Person[];
   games: Game[];
   lists: GameList[];
