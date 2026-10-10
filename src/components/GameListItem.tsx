@@ -3,7 +3,7 @@ import { Game } from "../domain/types";
 import { useLibrary } from "../state/libraryContext";
 import GameThumb from "./GameThumb";
 import { heart, heartOutline } from "ionicons/icons";
-import { gameSummary } from "../logic/format";
+import { playersLine, timeAndComplexity } from "../logic/format";
 import { isStale } from "../logic/plays";
 
 export default function GameListItem({ game, href, showOwner = false}: { game: Game, href: string, showOwner?: boolean }) {
@@ -13,6 +13,7 @@ export default function GameListItem({ game, href, showOwner = false}: { game: G
   const badgeColor = count === 0 ? 'medium' : isStale(gameStats) ? 'warning' : 'success';
   const ownerId = game.ownership.kind === 'owned' ? game.ownership.ownerId : undefined;
   const owner = data.people.find(person => person.id === ownerId)?.name;
+  const timeAndComplexityLine = timeAndComplexity(game);
 
   return (
     <IonItemSliding>
@@ -25,7 +26,8 @@ export default function GameListItem({ game, href, showOwner = false}: { game: G
             {game.name}
             {game.favorite && <IonIcon icon={heart} color="danger" style={{ marginLeft: 6, verticalAlign: 'middle' }} />}
           </h2>
-          <p>{gameSummary(game)}</p>
+          <p>{playersLine(game)}</p>
+          {timeAndComplexityLine && <p>{timeAndComplexityLine}</p>}
           {showOwner && owner && <p>{owner}</p>}
         </IonLabel>
         <IonNote slot="end">

@@ -100,11 +100,6 @@ export default function GameDetailPage({backHref}: {backHref: string}) {
           {game.syncedAt && <p style={{ margin: '2px 0 0', fontSize: 12, opacity: 0.6 }}>BGG data from {new Date(game.syncedAt).toLocaleDateString()}</p>}
         </div>
 
-        <PlayHistory game={game} />
-        <ExpansionChecklist game={game} />
-        <RelatedGames game={game} hrefFor={(id) => location.pathname.replace(/[^/]+$/, id)} />
-        <FamilyList game={game} />
-
         <IonList inset>
           <IonItem>
             <IonToggle checked={game.favorite} onIonChange={(e) => actions.updateGame(game.id, {'favorite': e.detail.checked})}>
@@ -132,7 +127,9 @@ export default function GameDetailPage({backHref}: {backHref: string}) {
             />
           </IonItem>
         </IonList>
-        
+
+        <PlayHistory game={game} />
+
         <IonList inset>
           <IonListHeader>
             <IonLabel>Lists</IonLabel>
@@ -152,6 +149,12 @@ export default function GameDetailPage({backHref}: {backHref: string}) {
             </IonItem>
           ))}
         </IonList>
+
+        <ExpansionChecklist game={game} />
+
+        <RelatedGames game={game} hrefFor={(id) => location.pathname.replace(/[^/]+$/, id)} />
+
+        <FamilyList game={game} />
 
         <div className="ion-padding">
           <IonButton expand="block" color="danger" fill="outline" onClick={confirmDelete}>
