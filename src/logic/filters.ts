@@ -102,5 +102,11 @@ export function countActiveFilters(filters: GameFilters): number {
 }
 
 export function allCategories(games: readonly Game[]): string[] {
-  return [...new Set(games.flatMap((g) => g.categories ?? []))].sort();
+  const counts = new Map<string, number>();
+  for (const game of games) {
+    for (const category of game.categories ?? []) counts.set(category, (counts.get(category) ?? 0) + 1);
+  }
+  return [...counts]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .map(([category]) => category);
 }
