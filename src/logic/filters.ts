@@ -110,3 +110,10 @@ export function allCategories(games: readonly Game[]): string[] {
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
     .map(([category]) => category);
 }
+
+export function sameFilters(a: GameFilters, b: GameFilters): boolean {
+  const normalize = (f: GameFilters) => JSON.stringify(
+    (Object.keys(f) as (keyof GameFilters)[]).sort().map(key => [key, key === 'categories' ? [...f.categories].sort() : f[key]])
+  );
+  return normalize(a) === normalize(b);
+}

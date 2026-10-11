@@ -10,6 +10,7 @@ import { gameSummary } from "../logic/format";
 import { IonBadge, IonButton, IonButtons, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, IonHeader, IonIcon, IonPage, IonText, IonTitle, IonToolbar } from "@ionic/react";
 import { funnelOutline, shareOutline } from "ionicons/icons";
 import FilterModal from "../components/FilterModal";
+import FilterPresets from "../components/FilterPresets";
 
 const DiceRoller = lazy(() => import('../components/DiceRoller'));
 
@@ -23,7 +24,6 @@ export default function PickPage() {
   const dice = useRef<DiceHandle>(null)
 
   const candidates = useMemo(() => applyFilters(data.games, filters, data.lists, stats), [data.games, data.lists, filters, stats]);
-  const partner = data.people[1];
 
   async function roll() {
     const choice = pickRandom(candidates);
@@ -61,25 +61,7 @@ export default function PickPage() {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
-        {partner && (
-          <IonButton
-            size="small"
-            fill="outline"
-            onClick={() => 
-              setFilters({
-                ...DEFAULT_FILTERS,
-                ownerId: partner.id,
-                playerCount: 2,
-                playerFit: 'recommended',
-                scope: 'owned',
-                played: 'never',
-              })
-            }
-          >
-            {partner.name}'s unplayed games good for 2 players
-          </IonButton>
-        )}
-
+        <FilterPresets filters={filters} onApply={setFilters} />
         <div className="dice-stage">
           <Suspense fallback={null}>
             <DiceRoller ref={dice} />

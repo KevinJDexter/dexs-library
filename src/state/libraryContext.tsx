@@ -5,6 +5,7 @@ import { BggUpdate, libraryReducer } from "./libraryReducer";
 import { newId } from "../domain/id";
 import { playStats } from "../logic/plays";
 import { today } from "../logic/dates";
+import { GameFilters } from "../logic/filters";
 
 type NewGame = Omit<Game, "id" >
 
@@ -102,7 +103,15 @@ function useLibraryStore() {
       ),
       toggleCollapsedSection: (section: string) => {
         dispatch({ type: "toggleCollapseSection", section })
-      }
+      },
+      savePreset: (name: string, filters: GameFilters) => {
+        const preset = { id: newId(), name, filters };
+        dispatch({ type: 'savePreset', preset });
+        return preset;
+      },
+      deletePreset: (id: string) => (
+        dispatch({ type: 'deletePreset', id })
+      ),
     }),
     []
   )

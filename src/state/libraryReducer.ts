@@ -1,4 +1,4 @@
-import { ExpansionState, Game, GameList, LibraryData, Person, PersonId, Play } from "../domain/types";
+import { ExpansionState, FilterPreset, Game, GameList, LibraryData, Person, PersonId, Play } from "../domain/types";
 
 export type LibraryAction =
   | { type: "hydrate"; data: LibraryData}
@@ -17,7 +17,9 @@ export type LibraryAction =
   | { type: "removePlay"; id: string }
   | { type: "setExpansion"; personId: PersonId; bggId: number; expansion: ExpansionState | null }
   | { type: "setFamilyPrefixHidden"; prefix: string; hidden: boolean }
-  | { type: "toggleCollapseSection"; section: string };
+  | { type: "toggleCollapseSection"; section: string }
+  | { type: "savePreset"; preset: FilterPreset }
+| { type: "deletePreset"; id: string };
 
 export type BggUpdate = Partial<Omit<Game, "id">> & { bggId: number };
 
@@ -64,6 +66,12 @@ export function libraryReducer (state: LibraryData, action: LibraryAction): Libr
           expansions: Object.fromEntries(
             Object.entries(state.expansions).filter(([personId]) => personId !== action.id)
           ),
+          settings: {
+            ...state.settings,
+            filterPresets: state.settings.filterPresets.map(preset => (
+              preset.filters.ownerId === action.id ? { ...preset, filters: { ...preset.filters, ownerId: 'any' } } : preset
+            )),
+          },
         }
       }
     case "createList":
@@ -79,7 +87,13 @@ export function libraryReducer (state: LibraryData, action: LibraryAction): Libr
     case "deleteList":
       return {
         ...state,
-        lists: state.lists.filter(list => list.id !== action.id)
+        lists: state.lists.filter(list => list.id !== action.id),
+        settings: {
+          ...state.settings,
+          filterPresets: state.settings.filterPresets.map(preset => (
+            preset.filters.listId === action.id ? { ...preset, filters: { ...preset.filters, listId: null } } : preset
+          )),
+        },
       };
     case "setGameLists":
       return {
@@ -145,5 +159,12 @@ export function libraryReducer (state: LibraryData, action: LibraryAction): Libr
         }
       }
     }
+    case "savePreset":
+      return { ...state, settings: { ...state.settings, filterPresets: [...state.settings.filterPresets, action.preset] } };
+    case "deletePreset":
+      return {
+        ...state,
+        settings: { ...state.settings, filterPresets: state.settings.filterPresets.filter(preset => preset.id !== action.id) },
+      };
   }
 }
