@@ -11,6 +11,7 @@ import { IonBadge, IonButton, IonButtons, IonCard, IonCardContent, IonCardHeader
 import { funnelOutline, shareOutline } from "ionicons/icons";
 import FilterModal from "../components/FilterModal";
 import FilterPresets from "../components/FilterPresets";
+import { buildFaces } from "../logic/dieFaces";
 
 const DiceRoller = lazy(() => import('../components/DiceRoller'));
 
@@ -32,7 +33,9 @@ export default function PickPage() {
     setPicked(null);
 
     await Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {});
-    await dice.current.roll();
+
+    const { faces, winnerIndex } = buildFaces(choice, candidates);
+    await dice.current.roll( faces.map(face => ({ label: face.name, imageUrl: face.thumbnail })), winnerIndex);
 
     setPicked(choice);
     setLoggedId(null);

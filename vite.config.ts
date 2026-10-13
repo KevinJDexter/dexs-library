@@ -16,7 +16,12 @@ export default defineConfig({
         target: 'https://boardgamegeek.com',
         changeOrigin: true,
         rewrite: (path: string) => path.replace(/^\/bgg/, '/xmlapi2')
-      }
+      },
+      '/geekdo-images': {
+        target: 'https://cf.geekdo-images.com',
+        changeOrigin: true,
+        rewrite: (path: string) => path.replace(/^\/geekdo-images/, '')
+      },
     }
   },
   test: {
