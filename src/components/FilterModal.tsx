@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { IonAccordion, IonAccordionGroup, IonButton, IonButtons, IonChip, IonContent, IonHeader, IonItem, IonLabel, IonList, IonModal, IonNote, IonRange, IonSelect, IonSelectOption, IonTitle, IonToggle, IonToolbar } from "@ionic/react";
 import { GameList, Person } from "../domain/types";
-import { COMPLEXITY_MAX, COMPLEXITY_MIN, DEFAULT_FILTERS, GameFilters, PlayedFilter } from "../logic/filters";
+import { COMPLEXITY_MAX, COMPLEXITY_MIN, DEFAULT_FILTERS, GameFilters, PlayedFilter, TAG_KINDS, TagKind } from "../logic/filters";
 import { STALE_MONTHS } from "../logic/plays";
 
 interface FilterModalProps {
@@ -11,7 +11,7 @@ interface FilterModalProps {
   onChange: (next: GameFilters) => void;
   people: Person[];
   lists: GameList[];
-  categories: string[];
+  tags: Record<TagKind, string[]>;
   showOwner?: boolean;
 }
 
@@ -19,6 +19,39 @@ const PLAYER_COUNTS = [1, 2, 3, 4, 5, 6, 7, 8, 12, 16]
 const PLAY_TIMES = [15, 30, 45, 60, 90, 120];
 const SETUP_TIMES = [5, 10, 15, 20, 30];
 const CHIPS_SHOWN = 12;
+
+const TAG_TITLES: Record<TagKind, string> = { categories: 'Categories', mechanics: 'Mechanics', families: 'Families' };
+
+function TagChips({ title, options, selected, onChange }: {
+  title: string;
+  options: string[];
+  selected: string[];
+  onChange: (next: string[]) => void;
+}) {
+  const [showAll, setShowAll] = useState(false);
+  if (options.length === 0) return null;
+  const shown = showAll ? options : [...new Set([...selected, ...options.slice(0, CHIPS_SHOWN)])];
+  const toggle = (tag: string) => onChange(selected.includes(tag) ? selected.filter(t => t !== tag) : [...selected, tag]);
+
+  return (
+    <div style={{ marginBottom: 12 }}>
+      <IonNote><p style={{ margin: '0 0 4px' }}>{title}</p></IonNote>
+      {shown.map(tag => {
+        const on = selected.includes(tag);
+        return (
+          <IonChip key={tag} color={on ? 'primary' : undefined} outline={!on} onClick={() => toggle(tag)}>
+            {tag}
+          </IonChip>
+        );
+      })}
+      {options.length > CHIPS_SHOWN && (
+        <IonButton fill="clear" size="small" onClick={() => setShowAll(!showAll)}>
+          {showAll ? 'Show fewer' : `Show all ${options.length}`}
+        </IonButton>
+      )}
+    </div>
+  );
+}
 
 const summary = (parts: (string | false | null | undefined)[]) => parts.filter(Boolean).join(' · ') || 'Any';
 
@@ -29,13 +62,11 @@ export default function FilterModal({
   onChange,
   people,
   lists,
-  categories,
+  tags,
   showOwner
 }: FilterModalProps) {
   const [openSections, setOpenSections] = useState<string[]>(['players']);
-  const [allCategoriesShown, setAllCategoriesShown] = useState(false);
   const set = <K extends keyof GameFilters>(key: K, value: GameFilters[K]) => onChange({ ...filters, [key]: value });
-  const toggleIn = <T,>(arr: T[], item: T) => (arr.includes(item) ? arr.filter((x) => x !== item) : [...arr, item]);
 
   const complexityChanged = filters.complexity.lower !== COMPLEXITY_MIN || filters.complexity.upper !== COMPLEXITY_MAX;
   const playersSummary = summary([
@@ -51,10 +82,8 @@ export default function FilterModal({
     filters.played !== 'any' && { never: 'never played', played: 'played', stale: 'not lately' }[filters.played],
   ]);
 
-  // Selected categories always stay visible, even when the list is collapsed.
-  const shownCategories = allCategoriesShown
-    ? categories
-    : [...new Set([...filters.categories, ...categories.slice(0, CHIPS_SHOWN)])];
+  const tagCount = TAG_KINDS.reduce((sum, kind) => sum + filters[kind].length, 0);
+  const hasTags = TAG_KINDS.some(kind => tags[kind].length > 0);
 
   return (
     <IonModal isOpen={isOpen} onDidDismiss={onClose} initialBreakpoint={0.75} breakpoints={[0, .75, 1]}>
@@ -181,31 +210,22 @@ export default function FilterModal({
             </IonList>
           </IonAccordion>
 
-          {categories.length > 0 && (
+          {hasTags && (
             <IonAccordion value="types">
               <IonItem slot="header">
                 <IonLabel>Type of game</IonLabel>
-                <IonNote slot="end">{filters.categories.length ? `${filters.categories.length} selected` : 'Any'}</IonNote>
+                <IonNote slot="end">{tagCount ? `${tagCount} selected` : 'Any'}</IonNote>
               </IonItem>
               <div slot="content" className="ion-padding">
-                {shownCategories.map(category => {
-                  const selected = filters.categories.includes(category);
-                  return (
-                    <IonChip
-                      key={category}
-                      color={selected ? 'primary' : undefined}
-                      outline={!selected}
-                      onClick={() => set('categories', toggleIn(filters.categories, category))}
-                    >
-                      {category}
-                    </IonChip>
-                  );
-                })}
-                {categories.length > CHIPS_SHOWN && (
-                  <IonButton fill="clear" size="small" onClick={() => setAllCategoriesShown(!allCategoriesShown)}>
-                    {allCategoriesShown ? 'Show fewer' : `Show all ${categories.length}`}
-                  </IonButton>
-                )}
+                {TAG_KINDS.map(kind => (
+                  <TagChips
+                    key={kind}
+                    title={TAG_TITLES[kind]}
+                    options={tags[kind]}
+                    selected={filters[kind]}
+                    onChange={next => set(kind, next)}
+                  />
+                ))}
               </div>
             </IonAccordion>
           )}

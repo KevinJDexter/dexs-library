@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useLibrary } from "../state/libraryContext";
 import { IonBadge, IonButton, IonButtons, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonList, IonPage, IonSearchbar, IonSelect, IonSelectOption, IonText, IonTitle, IonToolbar } from "@ionic/react";
-import { allCategories, applyFilters, countActiveFilters, DEFAULT_FILTERS, GameFilters, Scope } from "../logic/filters";
+import { applyFilters, countActiveFilters, DEFAULT_FILTERS, GameFilters, Scope, tagOptions } from "../logic/filters";
 import { add, funnelOutline, settingsOutline } from "ionicons/icons";
 import GameListItem from "../components/GameListItem";
 import AddGameModal from "../components/AddGameModal";
@@ -106,7 +106,8 @@ export default function GameCollectionPage({ title, scope, basePath }: GameColle
         onChange={setFilters}
         people={data.people}
         lists={data.lists}
-        categories={allCategories(data.games)}
+        tags={tagOptions(data.games, data.settings.hiddenFamilyPrefixes)}
+
       />
     </IonPage>
   )

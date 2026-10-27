@@ -1,6 +1,6 @@
 import { lazy, Suspense, useMemo, useRef, useState } from "react";
 import { useLibrary } from "../state/libraryContext";
-import { allCategories, applyFilters, countActiveFilters, DEFAULT_FILTERS, GameFilters } from "../logic/filters";
+import { applyFilters, countActiveFilters, DEFAULT_FILTERS, GameFilters, tagOptions } from "../logic/filters";
 import { Game } from "../domain/types";
 import type { DiceHandle } from "../components/DiceRoller";
 import { pickRandom } from "../logic/random";
@@ -119,7 +119,7 @@ export default function PickPage() {
           onChange={setFilters}
           people={data.people}
           lists={data.lists}
-          categories={allCategories(data.games)}
+          tags={tagOptions(data.games, data.settings.hiddenFamilyPrefixes)}
           showOwner={true}
         />
     </IonPage>

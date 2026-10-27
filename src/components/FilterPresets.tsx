@@ -2,7 +2,7 @@ import { useState } from "react";
 import { IonButton, IonChip, IonIcon, IonLabel, useIonAlert } from "@ionic/react";
 import { addOutline, closeCircle } from "ionicons/icons";
 import { FilterPreset } from "../domain/types";
-import { countActiveFilters, GameFilters, sameFilters } from "../logic/filters";
+import { countActiveFilters, GameFilters, sameFilters, withDefaults } from "../logic/filters";
 import { useLibrary } from "../state/libraryContext";
 
 interface FilterPresetsProps {
@@ -53,7 +53,7 @@ export default function FilterPresets({ filters, onApply }: FilterPresetsProps) 
             key={preset.id}
             color={active ? 'primary' : undefined}
             outline={!active}
-            onClick={() => (editing ? confirmDelete(preset) : onApply(preset.filters))}
+            onClick={() => (editing ? confirmDelete(preset) : onApply(withDefaults(preset.filters)))}
           >
             <IonLabel>{preset.name}</IonLabel>
             {editing && <IonIcon icon={closeCircle} color="danger" />}

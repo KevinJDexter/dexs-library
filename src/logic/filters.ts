@@ -1,4 +1,5 @@
 import { Game, GameList, PersonId } from "../domain/types";
+import { splitFamily } from "./families";
 import { isStale, PlayStats } from "./plays";
 
 export type Scope = 'owned' | 'wishlist' | 'all';
@@ -6,6 +7,9 @@ export type Scope = 'owned' | 'wishlist' | 'all';
 export type PlayerFit = 'supports' | 'recommended' | 'best';
 
 export type PlayedFilter = 'any' | 'never' | 'played' | 'stale';
+
+export type TagKind = 'categories' | 'mechanics' | 'families';
+export const TAG_KINDS: TagKind[] = ['categories', 'mechanics', 'families'];
 
 export interface GameFilters {
   search: string;
@@ -20,6 +24,8 @@ export interface GameFilters {
   maxSetupTime: number | null;
   categories: string[];
   listId: string | null;
+  mechanics: string[];
+  families: string[];
 }
 
 export const COMPLEXITY_MIN = 1;
@@ -38,7 +44,11 @@ export const DEFAULT_FILTERS: GameFilters = {
   maxSetupTime: null,
   categories: [],
   listId: null,
+  mechanics: [],
+  families: [],
 }
+
+export const withDefaults = (filters: Partial<GameFilters>): GameFilters => ({ ...DEFAULT_FILTERS, ...filters });
 
 const complexityIsDefault = (filters: GameFilters) => (
   filters.complexity.lower === COMPLEXITY_MIN && filters.complexity.upper === COMPLEXITY_MAX
@@ -79,7 +89,10 @@ export function applyFilters(
     }
     if (filters.maxPlayTime && game.playTime !== undefined && game.playTime > filters.maxPlayTime) return false;
     if (filters.maxSetupTime && game.setupTime !== undefined && game.setupTime > filters.maxSetupTime) return false;
-    if (filters.categories.length && !filters.categories.some(category => game.categories?.includes(category))) return false;
+    for (const kind of TAG_KINDS) {
+      const selected = filters[kind];
+      if (selected.length && !selected.some(tag => game[kind]?.includes(tag))) return false;
+    }
     if (listIds && !listIds.has(game.id)) return false;
     if (search && !game.name.toLowerCase().includes(search)) return false;
 
@@ -97,23 +110,39 @@ export function countActiveFilters(filters: GameFilters): number {
     filters.maxPlayTime !== null,
     filters.maxSetupTime !== null,
     filters.categories.length > 0,
+    filters.mechanics.length > 0,
+    filters.families.length > 0,
     filters.listId !== null,
   ].filter(Boolean).length
 }
 
-export function allCategories(games: readonly Game[]): string[] {
+export function allTags(games: readonly Game[], kind: TagKind): string[] {
   const counts = new Map<string, number>();
   for (const game of games) {
-    for (const category of game.categories ?? []) counts.set(category, (counts.get(category) ?? 0) + 1);
+    for (const tag of game[kind] ?? []) counts.set(tag, (counts.get(tag) ?? 0) + 1);
   }
   return [...counts]
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-    .map(([category]) => category);
+    .map(([tag]) => tag);
+}
+
+export function tagOptions(games: readonly Game[], hiddenFamilyPrefixes: readonly string[]): Record<TagKind, string[]> {
+  return {
+    categories: allTags(games, 'categories'),
+    mechanics: allTags(games, 'mechanics'),
+    families: allTags(games, 'families').filter(name => !hiddenFamilyPrefixes.includes(splitFamily(name).prefix)),
+  };
 }
 
 export function sameFilters(a: GameFilters, b: GameFilters): boolean {
-  const normalize = (f: GameFilters) => JSON.stringify(
-    (Object.keys(f) as (keyof GameFilters)[]).sort().map(key => [key, key === 'categories' ? [...f.categories].sort() : f[key]])
-  );
+  const normalize = (partial: GameFilters) => {
+    const f = withDefaults(partial);
+    return JSON.stringify(
+      (Object.keys(f) as (keyof GameFilters)[]).sort().map(key => {
+        const value = f[key];
+        return [key, Array.isArray(value) ? [...value].sort() : value]; // order of chips doesn't matter
+      })
+    );
+  };
   return normalize(a) === normalize(b);
 }
