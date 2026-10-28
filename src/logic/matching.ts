@@ -1,4 +1,5 @@
 import { Game, LibraryData } from "../domain/types";
+import { DEFAULT_FILTERS, filtersToSearch, TagKind } from "./filters";
 
 export interface Facet {
   kind: 'family' | 'category' | 'mechanic';
@@ -38,4 +39,27 @@ export function collectionFor(game: Game, data: LibraryData, listId?: string): C
     name: 'the wishlist',
     games: data.games.filter(g => g.ownership.kind === 'wishlist')
   }
+}
+
+const TAG_KIND: Record<Facet['kind'], TagKind> = { category: 'categories', mechanic: 'mechanics', family: 'families' };
+
+export interface FilterTarget {
+  label: string;
+  href: string;
+}
+
+export function filterTargetFor(game: Game, data: LibraryData, facet: Facet): FilterTarget {
+  const filters = { ...DEFAULT_FILTERS, [TAG_KIND[facet.kind]]: [facet.value] };
+  if (game.ownership.kind === 'owned') {
+    const ownerId = game.ownership.ownerId;
+    const owner = data.people.find(person => person.id === ownerId)?.name ?? 'their';
+    return {
+      label: `Filter ${owner}'s library by this`,
+      href: `/tabs/library${filtersToSearch({ ...filters, scope: 'owned', ownerId })}`,
+    };
+  }
+  return {
+    label: 'Filter the wishlist by this',
+    href: `/tabs/wishlist${filtersToSearch({ ...filters, scope: 'wishlist' })}`,
+  };
 }

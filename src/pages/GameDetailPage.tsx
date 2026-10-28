@@ -11,7 +11,7 @@ import ExpansionChecklist from "../components/ExpansionChecklist";
 import RelatedGames from "../components/RelatedGames";
 import FamilyList from "../components/FamilyList";
 import Section from "../components/Section";
-import { collectionFor, Facet } from "../logic/matching";
+import { collectionFor, Facet, filterTargetFor } from "../logic/matching";
 import MatchingGames from "../components/MatchingGames";
 import MechanicList from "../components/MechanicList";
 
@@ -174,6 +174,7 @@ export default function GameDetailPage({backHref}: {backHref: string}) {
         currentGameId={game.id}
         hrefFor={hrefFor}
         onClose={() => setFacet(null)}
+        filterTarget={facet ? filterTargetFor(game, data, facet) : undefined}
       />
     </IonPage>
   )

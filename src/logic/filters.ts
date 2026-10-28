@@ -146,3 +146,20 @@ export function sameFilters(a: GameFilters, b: GameFilters): boolean {
   };
   return normalize(a) === normalize(b);
 }
+
+const FILTERS_PARAM = 'filters';
+
+export function filtersToSearch(filters: GameFilters): string {
+  return `?${new URLSearchParams({ [FILTERS_PARAM]: JSON.stringify(filters) })}`;
+}
+
+export function filtersFromSearch(search: string): GameFilters | null {
+  const raw = new URLSearchParams(search).get(FILTERS_PARAM);
+  if (!raw) return null;
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? withDefaults(parsed as Partial<GameFilters>) : null
+  } catch {
+    return null;
+  }
+}

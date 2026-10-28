@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useLibrary } from "../state/libraryContext";
 import { IonBadge, IonButton, IonButtons, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonList, IonPage, IonSearchbar, IonSelect, IonSelectOption, IonText, IonTitle, IonToolbar } from "@ionic/react";
 import { applyFilters, countActiveFilters, DEFAULT_FILTERS, GameFilters, Scope, tagOptions } from "../logic/filters";
@@ -7,6 +7,7 @@ import GameListItem from "../components/GameListItem";
 import AddGameModal from "../components/AddGameModal";
 import FilterModal from "../components/FilterModal";
 import LooseExpansions from "../components/LooseExpansions";
+import { useFiltersFromUrl } from "../hooks/useFiltersFromUrl";
 
 interface GameCollectionPageProps {
   title: string;
@@ -22,6 +23,13 @@ export default function GameCollectionPage({ title, scope, basePath }: GameColle
   const [ chosenOwnerId, setChosenOwnerId ] = useState(scope === 'wishlist' ? 'wishlist' : data.people[0].id)
 
   const libraryOwnerId = scope === 'wishlist' || data.people.some(person => person.id === chosenOwnerId) ? chosenOwnerId : data.people[0].id;
+
+  const applyFromUrl = useCallback((incoming: GameFilters) => {
+    if (scope === 'owned' && incoming.ownerId !== 'any') setChosenOwnerId(incoming.ownerId);
+    setFilters({ ...incoming, scope, ownerId: 'any' });
+  }, [scope]);
+
+  useFiltersFromUrl(basePath, applyFromUrl);
 
   const ownedGames = useMemo(() => (
     data.games.filter(game => scope === 'owned' ? game.ownership.kind === 'owned' && game.ownership.ownerId === libraryOwnerId : game.ownership.kind === 'wishlist')
