@@ -1,8 +1,8 @@
 import { useCallback, useMemo, useState } from "react";
 import { useLibrary } from "../state/libraryContext";
-import { IonBadge, IonButton, IonButtons, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonList, IonPage, IonSearchbar, IonSelect, IonSelectOption, IonText, IonTitle, IonToolbar } from "@ionic/react";
-import { applyFilters, countActiveFilters, DEFAULT_FILTERS, GameFilters, Scope, tagOptions } from "../logic/filters";
-import { add, funnelOutline, settingsOutline } from "ionicons/icons";
+import { IonBadge, IonButton, IonButtons, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonList, IonPage, IonSearchbar, IonSelect, IonSelectOption, IonText, IonTitle, IonToolbar, useIonRouter } from "@ionic/react";
+import { applyFilters, countActiveFilters, DEFAULT_FILTERS, filtersToSearch, GameFilters, Scope, tagOptions } from "../logic/filters";
+import { add, cubeOutline, funnelOutline, settingsOutline } from "ionicons/icons";
 import GameListItem from "../components/GameListItem";
 import AddGameModal from "../components/AddGameModal";
 import FilterModal from "../components/FilterModal";
@@ -23,6 +23,11 @@ export default function GameCollectionPage({ title, scope, basePath }: GameColle
   const [ chosenOwnerId, setChosenOwnerId ] = useState(scope === 'wishlist' ? 'wishlist' : data.people[0].id)
 
   const libraryOwnerId = scope === 'wishlist' || data.people.some(person => person.id === chosenOwnerId) ? chosenOwnerId : data.people[0].id;
+  const router = useIonRouter();
+
+  function pickFromThese() {
+    router.push(`/tabs/pick${filtersToSearch({...filters, search: '', scope: 'owned', ownerId: libraryOwnerId})}`, 'root');
+  }
 
   const applyFromUrl = useCallback((incoming: GameFilters) => {
     if (scope === 'owned' && incoming.ownerId !== 'any') setChosenOwnerId(incoming.ownerId);
@@ -55,6 +60,11 @@ export default function GameCollectionPage({ title, scope, basePath }: GameColle
           )}
           <IonTitle>{title}</IonTitle>
           <IonButtons slot="end">
+            { scope === 'owned' && (
+              <IonButton onClick={pickFromThese}>
+                <IonIcon slot='icon-only' icon={cubeOutline} />
+              </IonButton>
+            )}
             <IonButton onClick={() => setFilterModalOpen(true)}>
               <IonIcon slot="icon-only" icon={funnelOutline} />
               { activeCount > 0 && <IonBadge color="primary">{activeCount}</IonBadge>}
@@ -114,7 +124,7 @@ export default function GameCollectionPage({ title, scope, basePath }: GameColle
         onChange={setFilters}
         people={data.people}
         lists={data.lists}
-        tags={tagOptions(data.games, data.settings.hiddenFamilyPrefixes)}
+        tags={tagOptions(ownedGames, data.settings.hiddenFamilyPrefixes)}
 
       />
     </IonPage>

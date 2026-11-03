@@ -33,3 +33,13 @@ export function visibleFamilies(families: readonly string[], hiddenPrefixes: rea
   }
   return [...groups];
 }
+
+export function familiesByPrefix(names: readonly string[]): [string, string[]][] {
+  const groups = new Map<string, string[]>();
+  for (const name of names) {
+    const { prefix } = splitFamily(name);
+    groups.set(prefix, [...(groups.get(prefix) ?? []), name]);
+  }
+  const last = (prefix: string) => prefix === NO_PREFIX ? 1 : 0;
+  return [...groups].sort(([a], [b]) => last(a) - last(b))
+}

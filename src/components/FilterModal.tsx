@@ -3,6 +3,7 @@ import { IonAccordion, IonAccordionGroup, IonButton, IonButtons, IonChip, IonCon
 import { GameList, Person } from "../domain/types";
 import { COMPLEXITY_MAX, COMPLEXITY_MIN, DEFAULT_FILTERS, GameFilters, PlayedFilter, TAG_KINDS, TagKind } from "../logic/filters";
 import { STALE_MONTHS } from "../logic/plays";
+import { familiesByPrefix, splitFamily } from "../logic/families";
 
 interface FilterModalProps {
   isOpen: boolean;
@@ -20,17 +21,18 @@ const PLAY_TIMES = [15, 30, 45, 60, 90, 120];
 const SETUP_TIMES = [5, 10, 15, 20, 30];
 const CHIPS_SHOWN = 12;
 
-const TAG_TITLES: Record<TagKind, string> = { categories: 'Categories', mechanics: 'Mechanics', families: 'Families' };
-
-function TagChips({ title, options, selected, onChange }: {
+function TagChips({ title, options, selected, onChange, label = tag => tag }: {
   title: string;
   options: string[];
   selected: string[];
   onChange: (next: string[]) => void;
+  label?: (tag: string) => string;
 }) {
   const [showAll, setShowAll] = useState(false);
-  if (options.length === 0) return null;
-  const shown = showAll ? options : [...new Set([...selected, ...options.slice(0, CHIPS_SHOWN)])];
+  if (options.length === 0 && selected.length === 0) return null;
+  const shown = showAll
+    ? [...new Set([...options,  ...selected])]
+    : [...new Set([...selected, ...options.slice(0, CHIPS_SHOWN)])];
   const toggle = (tag: string) => onChange(selected.includes(tag) ? selected.filter(t => t !== tag) : [...selected, tag]);
 
   return (
@@ -40,7 +42,7 @@ function TagChips({ title, options, selected, onChange }: {
         const on = selected.includes(tag);
         return (
           <IonChip key={tag} color={on ? 'primary' : undefined} outline={!on} onClick={() => toggle(tag)}>
-            {tag}
+            {label(tag)}
           </IonChip>
         );
       })}
@@ -51,6 +53,35 @@ function TagChips({ title, options, selected, onChange }: {
       )}
     </div>
   );
+}
+
+function FamilyChips({ options, selected, onChange }: {
+  options: string[],
+  selected: string[],
+  onChange: (next: string[]) => void
+}) {
+  const groups = familiesByPrefix([...new Set([...options, ...selected])]);
+  if (groups.length === 0) return null;
+
+  return (
+    <div style={{ marginBottom: 12 }}>
+      <IonNote>
+        <p style={{ margin: '0 0 4px' }}>Families</p>
+      </IonNote>
+      <div style={{ paddingInlineStart: 12 }}>
+        {groups.map(([prefix, names]) => (
+          <TagChips
+            key={prefix}
+            title={prefix}
+            options={names}
+            selected={selected.filter(name => names.includes(name))}
+            onChange={next => onChange([...selected.filter(name => !names.includes(name)), ...next])}
+            label={name => splitFamily(name).label}
+          />
+        ))}
+      </div>
+    </div>
+  )
 }
 
 const summary = (parts: (string | false | null | undefined)[]) => parts.filter(Boolean).join(' · ') || 'Any';
@@ -83,7 +114,7 @@ export default function FilterModal({
   ]);
 
   const tagCount = TAG_KINDS.reduce((sum, kind) => sum + filters[kind].length, 0);
-  const hasTags = TAG_KINDS.some(kind => tags[kind].length > 0);
+  const hasTags = TAG_KINDS.some(kind => tags[kind].length > 0 || filters[kind].length > 0);
 
   return (
     <IonModal isOpen={isOpen} onDidDismiss={onClose} initialBreakpoint={0.75} breakpoints={[0, .75, 1]}>
@@ -217,15 +248,23 @@ export default function FilterModal({
                 <IonNote slot="end">{tagCount ? `${tagCount} selected` : 'Any'}</IonNote>
               </IonItem>
               <div slot="content" className="ion-padding">
-                {TAG_KINDS.map(kind => (
-                  <TagChips
-                    key={kind}
-                    title={TAG_TITLES[kind]}
-                    options={tags[kind]}
-                    selected={filters[kind]}
-                    onChange={next => set(kind, next)}
-                  />
-                ))}
+                <TagChips
+                  title="Categories"
+                  options={tags.categories}
+                  selected={filters.categories}
+                  onChange={next => set('categories', next)}
+                />
+                <TagChips
+                  title="Mechanics"
+                  options={tags.mechanics}
+                  selected={filters.mechanics}
+                  onChange={next => set('mechanics', next)}
+                />
+                <FamilyChips
+                  options={tags.families}
+                  selected={filters.families}
+                  onChange={next => set('families', next)}
+                />
               </div>
             </IonAccordion>
           )}

@@ -12,6 +12,7 @@ import { funnelOutline, shareOutline } from "ionicons/icons";
 import FilterModal from "../components/FilterModal";
 import FilterPresets from "../components/FilterPresets";
 import { buildFaces } from "../logic/dieFaces";
+import { useFiltersFromUrl } from "../hooks/useFiltersFromUrl";
 
 const DiceRoller = lazy(() => import('../components/DiceRoller'));
 
@@ -23,7 +24,9 @@ export default function PickPage() {
   const [rolling, setRolling] = useState(false);
   const [loggedId, setLoggedId] = useState<string | null>(null);
   const dice = useRef<DiceHandle>(null)
+  useFiltersFromUrl('/tabs/pick', setFilters);
 
+  const ownedGames = useMemo(() => data.games.filter(game => game.ownership.kind === 'owned'), [data.games])
   const candidates = useMemo(() => applyFilters(data.games, filters, data.lists, stats), [data.games, data.lists, filters, stats]);
 
   async function roll() {
@@ -119,7 +122,7 @@ export default function PickPage() {
           onChange={setFilters}
           people={data.people}
           lists={data.lists}
-          tags={tagOptions(data.games, data.settings.hiddenFamilyPrefixes)}
+          tags={tagOptions(ownedGames, data.settings.hiddenFamilyPrefixes)}
           showOwner={true}
         />
     </IonPage>
